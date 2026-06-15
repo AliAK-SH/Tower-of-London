@@ -1,23 +1,12 @@
-export type Disk = number; // 1, 2, or 3
-export type Peg = Disk[];     
-export type BoardData = [Peg, Peg, Peg]; // A fixed tuple of 3 pegs
-
-export interface Move {
-  fromPeg: number;
-  toPeg: number;
-  timestamp: number;
-}
-
-export interface ToLResult {
-  participantId: string;
-  trialIndex: number;
+export interface VariantConfig {
+  id: string;
+  name: string;
+  description: string;
   numDisks: number;
-  startState: string;
-  goalState: string;
-  actualMoves: number;
-  optimalMoves: number;
-  planningTimeMs: number;
-  completionTimeMs: number;
-  success: boolean;
-  score: number;
+  pegCapacities: number[]; // e.g., [1, 2, 3] or [5, 5, 5]
+  hasTimeLimit: boolean;
+  timeLimitMs?: number;
+  hasMoveLimit: boolean;
+  moveLimitType?: 'optimal' | 'fixed'; // Some limit moves based on optimal + X
+  trials: Trial[];
 }

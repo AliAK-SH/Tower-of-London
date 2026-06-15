@@ -1,31 +1,42 @@
 // src/store/useGameStore.ts
-import { create } from 'zustand';
-import { BoardData, Move } from '../types';
-import { isValidMove as validateMove, isGoalReached } from '../lib/gameLogic';
+import { create } from "zustand";
+import { BoardData, VariantConfig } from "../types";
+import { isValidMove as validateMove, isGoalReached } from "../lib/gameLogic";
 
 interface GameState {
+  config: VariantConfig | null;
+
   board: BoardData;
   goalBoard: BoardData;
-  selectedPeg: number | null; // Track the first click
+
+  selectedPeg: number | null;
   moveCount: number;
   isComplete: boolean;
-  
-  // Actions
+
+  // actions
+  setConfig: (config: VariantConfig) => void;
   handlePegClick: (pegIndex: number) => void;
   resetGame: (initial: BoardData, goal: BoardData) => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
+  config: null,
+
   board: [[], [], []] as unknown as BoardData,
   goalBoard: [[], [], []] as unknown as BoardData,
+
   selectedPeg: null,
   moveCount: 0,
   isComplete: false,
 
-  handlePegClick: (pegIndex) => {
-    const { board, selectedPeg, goalBoard, moveCount } = get();
+  setConfig: (config) => set({ config }),
 
-    // IF NO PEG SELECTED: Select the peg if it has disks
+  handlePegClick: (pegIndex) => {
+    const { board, selectedPeg, goalBoard, moveCount, config } = get();
+
+    if (!config) return;
+
+    // FIRST CLICK — select peg if it has disks
     if (selectedPeg === null) {
       if (board[pegIndex].length > 0) {
         set({ selectedPeg: pegIndex });
@@ -33,36 +44,47 @@ export const useGameStore = create<GameState>((set, get) => ({
       return;
     }
 
-    // IF PEG ALREADY SELECTED: Try to move
+    // CLICKED SAME PEG — deselect
     if (selectedPeg === pegIndex) {
-      set({ selectedPeg: null }); // Deselect if same peg clicked
+      set({ selectedPeg: null });
       return;
     }
 
-    const validation = validateMove(board, selectedPeg, pegIndex);
+    const validation = validateMove(
+      board,
+      selectedPeg,
+      pegIndex,
+      config.pegCapacities
+    );
+
     if (validation.valid) {
-      const newBoard = board.map(p => [...p]) as unknown as BoardData;
+      const newBoard = board.map((p) => [...p]) as unknown as BoardData;
+
       const disk = newBoard[selectedPeg].pop();
       if (disk) newBoard[pegIndex].push(disk);
 
       const reached = isGoalReached(newBoard, goalBoard);
+
       set({
         board: newBoard,
         moveCount: moveCount + 1,
         isComplete: reached,
-        selectedPeg: null
+        selectedPeg: null,
       });
     } else {
-      // Invalid move: deselect or select the new peg if it has disks
-      set({ selectedPeg: board[pegIndex].length > 0 ? pegIndex : null });
+      // invalid move — optionally select the new peg if it has disks
+      set({
+        selectedPeg: board[pegIndex].length > 0 ? pegIndex : null,
+      });
     }
   },
 
-  resetGame: (initial, goal) => set({
-    board: initial,
-    goalBoard: goal,
-    selectedPeg: null,
-    moveCount: 0,
-    isComplete: false
-  })
+  resetGame: (initial, goal) =>
+    set({
+      board: initial,
+      goalBoard: goal,
+      selectedPeg: null,
+      moveCount: 0,
+      isComplete: false,
+    }),
 }));

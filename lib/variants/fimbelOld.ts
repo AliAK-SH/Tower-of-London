@@ -1,4 +1,4 @@
-import { BoardData } from "../types";
+import { VariantConfig, BoardData } from "../../types";
 
 export interface Trial {
   id: number;
@@ -7,7 +7,7 @@ export interface Trial {
   optimalMoves?: number;
 }
 
-export const TRIALS: Trial[] = [
+const trials: Trial[] = [
 {
   id: 1,
   goal: [[], [3], [1,2]],
@@ -84,3 +84,18 @@ export const TRIALS: Trial[] = [
   start: [[], [2], [1,3]]
 }
 ];
+
+export const FIMBEL_OLD: VariantConfig = {
+  id: "fimbel-old",
+  name: "Tower of London – Fimbel (Old)",
+  description: "Color-based 3-disk Tower of London variant based on Fimbel et al.",
+
+  numDisks: 3,
+
+  pegCapacities: [1, 2, 3],
+
+  hasTimeLimit: false,
+  hasMoveLimit: false,
+
+  trials
+};
