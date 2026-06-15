@@ -1,65 +1,126 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useEffect, useState } from "react";
+import { Peg } from "../components/ToL/Peg";
+import { useGameStore } from "../store/useGameStore";
+import { TRIALS } from "../lib/trials";
+
+export default function TowerOfLondonPage() {
+  const { board, goalBoard, moveCount, resetGame, isComplete } = useGameStore();
+
+  const [trialIndex, setTrialIndex] = useState(0);
+
+  const currentTrial = TRIALS[trialIndex];
+
+  useEffect(() => {
+    if (!currentTrial) return;
+    resetGame(currentTrial.start, currentTrial.goal);
+  }, [trialIndex, resetGame]);
+
+  function handleNextTrial() {
+    if (trialIndex < TRIALS.length - 1) {
+      setTrialIndex((prev) => prev + 1);
+    } else {
+      window.location.href = "/results";
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-[#1a2332] text-white p-8 flex flex-col items-center font-sans">
+
+      {/* Title */}
+      <h1 className="text-4xl font-bold mb-2">آزمون برج لندن</h1>
+
+      <p className="text-gray-400 mb-8 text-center max-w-md">
+        هدف این آزمون این است که آرایش دیسک‌های پایین را دقیقاً مطابق با الگوی هدف در بالا قرار دهید.
+      </p>
+
+      <div className="w-full max-w-2xl space-y-6">
+
+        {/* GOAL BOARD */}
+        <div className="bg-[#2a3447] rounded-3xl p-8 border border-gray-700 relative">
+
+          <span className="absolute top-4 left-1/2 -translate-x-1/2 bg-[#3a4457] px-4 py-1 rounded-full text-sm">
+            الگوی هدف
+          </span>
+
+          <div className="flex justify-around items-end pt-8">
+            {goalBoard.map((disks, idx) => (
+              <div
+                key={`goal-${idx}`}
+                className="opacity-80 pointer-events-none scale-90"
+              >
+                <Peg pegIndex={idx} disks={disks} isGoal />
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Divider */}
+        <div className="relative h-px bg-gray-700 my-4">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-30"></div>
         </div>
-      </main>
-    </div>
+
+        {/* INTERACTIVE BOARD */}
+        <div className="bg-[#2a3447] rounded-3xl p-8 border border-gray-700 relative">
+
+          <span className="absolute top-4 left-1/2 -translate-x-1/2 bg-[#3a4457] px-4 py-1 rounded-full text-sm">
+            قسمت تعاملی
+          </span>
+
+          <div className="flex justify-around items-end pt-8">
+            {board.map((disks, idx) => (
+              <Peg key={`play-${idx}`} pegIndex={idx} disks={disks} />
+            ))}
+          </div>
+
+          {/* SUCCESS OVERLAY */}
+          {isComplete && (
+            <div className="absolute inset-0 bg-green-500/10 backdrop-blur-[2px] flex items-center justify-center rounded-3xl">
+
+              <div className="flex flex-col items-center gap-4">
+
+                <div className="bg-green-600 text-white px-6 py-2 rounded-full font-bold shadow-lg">
+                  هدف با موفقیت تکمیل شد
+                </div>
+
+                <button
+                  onClick={handleNextTrial}
+                  className="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-lg font-medium"
+                >
+                  {trialIndex === TRIALS.length - 1
+                    ? "مشاهده نتایج"
+                    : "مرحله بعد"}
+                </button>
+
+              </div>
+
+            </div>
+          )}
+        </div>
+
+        {/* STATS BAR */}
+        <div className="bg-[#252f3f] rounded-2xl p-4 flex justify-between items-center border border-gray-700">
+
+          <div className="flex items-center gap-3">
+
+            <div className="w-10 h-10 rounded-full bg-[#3a4457] flex items-center justify-center">
+              <span className="text-blue-400 font-bold">{moveCount}</span>
+            </div>
+
+            <p className="text-sm text-gray-300">
+              تعداد حرکات انجام شده
+            </p>
+
+          </div>
+
+          <div className="text-sm text-gray-400">
+            مرحله {trialIndex + 1} از {TRIALS.length}
+          </div>
+
+        </div>
+
+      </div>
+    </main>
   );
 }

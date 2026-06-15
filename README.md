@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tower of London – Digital Implementation
 
-## Getting Started
+A browser-based, **Persian-language** implementation of the Tower of London (ToL) task designed for cognitive and neuropsychological assessment. This project aims to reproduce all **11 Tower of London variants** included in the PEBL2 battery, providing a versatile platform for both research and clinical use.
 
-First, run the development server:
+By preserving the core logic of classical paradigms while modernizing the data architecture, this tool enables high-resolution behavioral analysis of planning, executive function, and goal-directed problem solving.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📋 Included Task Variants
+The platform *is going to* support the following 11 versions as categorized in the PEBL2 battery:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Unconstrained Pile Heights**: 3/4/5 disks, progressive difficulty (24 trials).
+2. **Unconstrained Pile Heights**: 3/4/5 disks, random presentation (24 trials).
+3. **Shallice Test**: [1,2,3] pile heights, 3 disks (Shallice’s original 12 problems).
+4. **Shallice Random**: [1,2,3] pile heights, 3 disks (30 random trials).
+5. **Phillips (1999) A**: Unconstrained piles, 5 disks, progressive difficulty (8 trials).
+6. **Phillips (1999) B**: Unconstrained piles, 5 disks, progressive difficulty (8 trials).
+7. **Phillips (1999) C**: Unconstrained piles, 5 disks, progressive difficulty (8 trials).
+8. **Fimbel et al. (2009) Old**: [1,2,3] pile heights, 3 disks, progressive difficulty (15 trials).
+9. **Fimbel et al. (2009) Young**: [1,2,3] pile heights, 3 disks, progressive difficulty (35 trials).
+10. **TOL-R (1998)**: [1,2,3] pile heights, 3 disks (30 problems, time/move limits).
+11. **TOL-DX (1998)**: [1,2,3] pile heights, 3 disks (15 problems).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📊 Data Logging & Architecture
+The data collection follows the hierarchical structure of PEBL2 but is extended with deeper clinical metrics and a recategorized three-file output system.
 
-To learn more about Next.js, take a look at the following resources:
+### Extended Clinical Variables
+Beyond standard performance tracking, this implementation captures:
+*   **`invalidMoves`**: Quantitative measure of rule-breaking behavior.
+*   **`incorrectCompletionAttempts`**: "Premature" finish attempts (clinical "mistakes").
+*   **`planningTimeMs`**: Latency before the first move is initiated.
+*   **`efficiencyRatio`**: Ratio of optimal moves to actual moves made.
+*   **`completionEfficiency`**: A session-wide metric: `(1 - (totalAttempts - totalTrials) / totalTrials) * 100`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Output Structure
+Data is exported into three distinct CSV files for easier analysis:
+1.  **`event_log.csv`**: Granular interaction data (clicks, invalid moves, resets, board states).
+2.  **`trial_results.csv`**: Trial-by-trial summaries (timing, success, excess moves).
+3.  **`session_summary.csv`**: Aggregated performance and efficiency scores for the participant.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠 Tech Stack
+*   **Language**: Persian (Farsi) localized interface.
+*   **Frontend**: HTML5, CSS3, and Vanilla JavaScript.
+*   **Interaction**: Optimized click/tap-based model for desktop use.
+*   **Data Export**: Client-side CSV generation for immediate research data retrieval.
