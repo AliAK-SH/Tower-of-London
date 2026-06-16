@@ -18,6 +18,6 @@ export interface VariantConfig {
   hasTimeLimit: boolean;
   timeLimitMs?: number;
   hasMoveLimit: boolean;
-  moveLimitType?: 'optimal' | 'fixed';
+
   trials: Trial[];
 }

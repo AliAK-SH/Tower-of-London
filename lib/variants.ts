@@ -38,6 +38,7 @@ export const VARIANT_DATA_TEST: Record<string, VariantConfig> = {
       trialTimeLimit: undefined,
       moveLimit: undefined,
     },
+    
     trials: FIMBEL_OLD_TRIALS,
   },
 

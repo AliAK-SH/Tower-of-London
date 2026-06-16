@@ -64,28 +64,7 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
       <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col px-6 py-5">
         
         {/* Header Section */}
-        <div className="grid grid-cols-3 items-start">
-          <div className="flex flex-col gap-4">
-            <Panel className="w-[190px] p-4">
-              <div className="flex items-center justify-between text-sm text-white/70">
-                <span>زمان باقی‌مانده</span>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">◔</div>
-              </div>
-              <div className="mt-2 text-3xl font-bold tracking-wider">
-                {formatTime(timeLeft)}
-              </div>
-            </Panel>
-
-            <Panel className="w-[190px] p-4">
-              <div className="flex items-center justify-between text-sm text-white/70">
-                <span>تعداد حرکات</span>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">↻</div>
-              </div>
-              <div className="mt-2 text-3xl font-bold tracking-wider">
-                {String(moveCount).padStart(2, "0")}
-              </div>
-            </Panel>
-          </div>
+        <div className="grid grid-cols-1 items-start">
         
       {/* Header Area */}
       <header className="text-center mb-12 flex flex-col items-center">
@@ -131,8 +110,9 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
           </div>
         </div>
 
-        {/* Target State */}
-        <div className="mt-8 grid grid-cols-[1fr_360px] gap-6">
+        {/* Target + Info */}
+        <div className="mt-8 grid grid-cols-3 gap-6">
+          {/* Target State */}
           <Panel className="p-4">
             <div className="mb-3 flex items-center justify-between">
               <div className="text-sm text-white/55">حالت هدف (Target State)</div>
@@ -144,51 +124,93 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
               ))}
             </div>
           </Panel>
-          <div />
+
+          <div className="flex flex-col gap-4" dir = "rtl">
+            <Panel className="w-[190px] p-4">
+              <div className="flex items-center justify-between text-sm text-white/70">
+                <span>زمان باقی‌مانده</span>
+                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">◔</div>
+              </div>
+              <div className="mt-2 text-3xl font-bold tracking-wider">
+                {formatTime(timeLeft)}
+              </div>
+            </Panel>
+
+            <Panel className="w-[190px] p-4">
+              <div className="flex items-center justify-between text-sm text-white/70">
+                <span>محدودیت حرکات</span>
+                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">↻</div>
+              </div>
+              <div className="mt-2 text-3xl font-bold tracking-wider">
+                {String(moveCount).padStart(2, "0")}
+              </div>
+            </Panel>
+          </div>
+
+          <div className="flex flex-col gap-4" dir = "rtl">
+            <Panel className="w-[190px] p-4">
+              <div className="flex items-center justify-between text-sm text-white/70">
+                <span>مرحله</span>
+                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">◔</div>
+              </div>
+              <div className="mt-2 text-3xl font-bold tracking-wider">
+                {String((trialIndex + 1))} از {String(((variant.trials.length)))}  
+              </div>
+            </Panel>
+
+            <Panel className="w-[190px] p-4">
+              <div className="flex items-center justify-between text-sm text-white/70">
+                <span>حرکات انجام شده</span>
+                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">↻</div>
+              </div>
+              <div className="mt-2 text-3xl font-bold tracking-wider">
+                {String(moveCount).padStart(2, "0")}
+              </div>
+            </Panel>
+          </div>
         </div>
 
-        {/* Workspace */}
-        <Panel className="mt-7 p-6 relative">
-          <div className="mb-3 text-center text-sm text-white/60">
-            {isFailed ? "تعداد حرکات یا زمان مجاز به پایان رسید." : "برای جابجایی مهره‌ها، روی میله مبدا و سپس مقصد کلیک کنید."}
-          </div>
-
-          <div className="mb-2 flex items-center justify-between px-2">
-            <div className="text-xl font-semibold text-white/90">فضای کاری</div>
-            <div className={`text-sm ${isComplete ? 'text-green-400' : 'text-white/55'}`}>
-              {isComplete ? "✓ مرحله تکمیل شد" : "i در حال اجرا"}
+                  {/* Workspace */}
+          <Panel className="p-4 relative">
+            <div className="mb-2 text-center text-xs text-white/60">
+              {isFailed ? "تعداد حرکات یا زمان مجاز به پایان رسید." : "روی میله مبدا و سپس مقصد کلیک کنید."}
             </div>
-          </div>
+            <div className="mb-2 flex items-center justify-between">
+              <div className="text-xl font-semibold text-white/90">فضای کاری</div>
+              <div className={`text-sm ${isComplete ? 'text-green-400' : 'text-white/55'}`}>
+                {isComplete ? "✓ مرحله تکمیل شد" : "i در حال اجرا"}
+              </div>
+            </div>
 
-          <div className={`mt-4 flex items-end justify-center gap-16 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] px-10 py-8 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.08)] transition-opacity ${isComplete ? 'opacity-50' : 'opacity-100'}`}>
-            <div className="absolute pointer-events-none h-1/2 w-full max-w-[1200px] rounded-[28px] blur-3xl bg-blue-500/5" />
-            {board?.map((disks, i) => (
-              <PegDisplay
-                key={`play-${i}`}
-                id={["A","B","C"][i]}
-                disks={disks}
-                tall
-                isSelected={selectedPeg === i}
-                onClick={() => !isComplete && handlePegClick(i)}
-              />
-            ))}
-          </div>
+            <div className={`flex items-end justify-center gap-16 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] px-10 py-8 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.08)] transition-opacity ${isComplete ? 'opacity-50' : 'opacity-100'}`}>
+              <div className="absolute pointer-events-none h-1/2 w-full max-w-[1200px] rounded-[28px] blur-3xl bg-blue-500/5" />
+              {board?.map((disks, i) => (
+                <PegDisplay
+                  key={`play-${i}`}
+                  id={["A","B","C"][i]}
+                  disks={disks}
+                  tall
+                  isSelected={selectedPeg === i}
+                  onClick={() => !isComplete && handlePegClick(i)}
+                />
+              ))}
+            </div>
 
-          <div className="mt-8 flex items-center justify-center gap-4">
-            {isComplete ? (
-               <button 
-               onClick={handleNextTrial}
-               className="rounded-xl bg-gradient-to-b from-green-500 to-green-700 px-12 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(34,197,94,0.35)] transition animate-pulse"
-             >
-               مرحله بعد
-             </button>
-            ) : (
-              <button className="rounded-xl bg-gradient-to-b from-blue-500 to-blue-700 px-12 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(59,130,246,0.35)] opacity-50 cursor-not-allowed">
-                در حال حل...
-              </button>
-            )}
-          </div>
-        </Panel>
+            <div className="mt-6 flex items-center justify-center gap-4">
+              {isComplete ? (
+                <button 
+                  onClick={handleNextTrial}
+                  className="rounded-xl bg-gradient-to-b from-green-500 to-green-700 px-12 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(34,197,94,0.35)] transition animate-pulse"
+                >
+                  مرحله بعد
+                </button>
+              ) : (
+                <button className="rounded-xl bg-gradient-to-b from-blue-500 to-blue-700 px-12 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(59,130,246,0.35)] opacity-50 cursor-not-allowed">
+                  در حال حل...
+                </button>
+              )}
+            </div>
+          </Panel>
 
         {/* Footer */}
         <div className="mt-7 grid grid-cols-[1fr_300px_1fr] gap-4">
@@ -196,7 +218,7 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
             <div className="mb-2 text-sm font-semibold text-white/80">راهنما</div>
             <ul className="space-y-1 text-xs leading-6 text-white/60">
               <li>• فقط یک مهره را در هر حرکت جابجا کنید.</li>
-              <li>• محدودیت حرکت: {variant.game.moveLimit || "ندارد"}</li>
+              <li>• محدودیت حرکات: {variant.trials[trialIndex]?.optimalMoves ?? "--"}</li>
               <li>• محدودیت ظرفیت میله‌ها: {variant.game.pegCapacities.join(" - ")}</li>
             </ul>
           </Panel>
