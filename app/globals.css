@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Set Vazirmatn as the default Sans font */
+  --font-sans: var(--font-vazir), ui-sans-serif, system-ui, sans-serif;
+  
+  /* Create a specific font variable for Bona Nova */
+  --font-bona: var(--font-bona);
+
+  /* Set your dark theme colors globally */
+  --color-background: #1a2332;
+  --color-foreground: #ffffff;
+}
+
+:root {
+  --background: #1a2332;
+  --foreground: #ffffff;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  /* This ensures Vazirmatn is used by default */
+  font-family: var(--font-vazir), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom utility class to use Bona Nova for numbers/English */
+.font-bona {
+  font-family: var(--font-bona), serif;
+}
