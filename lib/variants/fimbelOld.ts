@@ -1,12 +1,5 @@
 // lib/variants/fimbelOld.ts
-import { BoardData } from "../../types";
-
-export interface Trial {
-  id: number;
-  start: BoardData;
-  goal: BoardData;
-  optimalMoves?: number;
-}
+import { Trial } from "../../types";
 
 export const FIMBEL_OLD_TRIALS: Trial[] = [
   { id: 1, goal: [[], [3], [1,2]], start: [[3], [], [1,2]] },

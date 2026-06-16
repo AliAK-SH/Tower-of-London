@@ -2,24 +2,7 @@
 import { RefreshCcw, TimerReset, Scale, Target } from "lucide-react";
 import { FIMBEL_OLD_TRIALS } from "./variants/fimbelOld";
 import { FIMBEL_YOUNG_TRIALS } from "./variants/fimbelYoung";
-
-export interface VariantConfig {
-  id: string;
-  title: string;
-  sub: string;
-  rules: {
-    title: string;
-    description: string;
-    icon: any;
-  }[];
-  game: {
-    disks: number;
-    pegCapacities: number[];
-    trialTimeLimit?: number;   // seconds per trial
-    moveLimit?: number;        // max moves per trial
-  };
-  trials: any[];
-}
+import { VariantConfig } from "../types";
 
 export const VARIANT_DATA_TEST: Record<string, VariantConfig> = {
   "fimbel-old": {

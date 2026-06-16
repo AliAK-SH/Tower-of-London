@@ -11,13 +11,18 @@ export interface Trial {
 
 export interface VariantConfig {
   id: string;
-  name: string;
-  description: string;
-  numDisks: number;
-  pegCapacities: number[];
-  hasTimeLimit: boolean;
-  timeLimitMs?: number;
-  hasMoveLimit: boolean;
-
+  title: string;
+  sub: string;
+  rules: {
+    title: string;
+    description: string;
+    icon?: any;
+  }[];
+  game: {
+    disks: number;
+    pegCapacities: number[];
+    trialTimeLimit?: number;
+    moveLimit?: number;
+  };
   trials: Trial[];
 }
