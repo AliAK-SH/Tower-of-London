@@ -1,4 +1,4 @@
-# Tower of London – Digital Implementation
+# Tower of London – Web App Implementation
 
 A browser-based, **Persian-language** implementation of the Tower of London (ToL) task designed for cognitive and neuropsychological assessment. This project aims to reproduce all **11 Tower of London variants** included in the PEBL2 battery, providing a versatile platform for both research and clinical use.
 
