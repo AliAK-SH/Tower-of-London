@@ -1,6 +1,6 @@
 import React from "react";
 import { ArrowLeft, CircleAlert, Play, RefreshCcw, Scale, Target, TimerReset } from "lucide-react";
-import { VARIANT_DATA } from "../data/variants";
+import { VARIANT_DATA_INFO } from "../data/variants";
 
 const DEFAULT_RULES = [
   { title: "در هر حرکت، فقط یک مهره را جابه‌جا کنید.", description: "هر حرکت باید از روی یک مهره انجام شود.", icon: RefreshCcw },
@@ -17,8 +17,8 @@ const InfoPage: React.FC = () => {
 
   // Find variant safely
   const currentVariant =
-    VARIANT_DATA[variantId as keyof typeof VARIANT_DATA] ??
-    VARIANT_DATA["shallice-random"];
+    VARIANT_DATA_INFO[variantId as keyof typeof VARIANT_DATA_INFO] ??
+    VARIANT_DATA_INFO["shallice-random"];
 
   // Load rules dynamically
   const rules = currentVariant.rules ?? DEFAULT_RULES;
@@ -28,24 +28,37 @@ const InfoPage: React.FC = () => {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#07172d] text-white flex items-start justify-center px-4 py-6 md:py-8 font-sans">
+    <div dir="rtl" className="min-h-screen bg-[#020b18] text-white flex items-start justify-center px-4 py-6 md:py-8 font-sans">
       <div className="w-full max-w-[760px]">
 
-        {/* Header */}
-        <div className="flex flex-col items-center text-center">
-          <div className="relative mb-4 mt-1">
-            <div className="absolute inset-0 rounded-full blur-2xl bg-white/5"></div>
-            <img src="/logo.png" alt="University Logo" className="relative w-20 h-20 md:w-24 md:h-24 object-contain" />
-          </div>
-
-          <h1 className="text-[28px] md:text-[32px] font-bold leading-tight">
-            {currentVariant.title}
-          </h1>
-
-          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-5 py-1 text-[12px] text-white/70">
-            <span>{currentVariant.sub}</span>
-          </div>
+      {/* Header Area */}
+      <header className="text-center mb-12 flex flex-col items-center">
+        
+        <div className="relative mb-6">
+          <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full"></div>
+          <img
+            src="/logo.png"
+            alt="University Logo"
+            className="relative w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+          />
         </div>
+
+        <h1 className="text-5xl font-black mb-0.5 py-1 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent">
+            {currentVariant.title}
+        </h1>
+
+          <div className="flex justify-center items-center gap-2 mb-6 mt-6">
+            <span className="h-px w-8 bg-blue-500"></span>
+            <span className="text-blue-400 tracking-[0.3em] uppercase text-sm">
+              Tower of London
+            </span>
+            <span className="h-px w-8 bg-blue-500"></span>
+          </div>
+
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-5 py-1 text-[12px] text-white/70">
+              <span>{currentVariant.sub}</span>
+            </div>
+      </header>
 
         {/* Section 1 */}
         <section className="mt-10">

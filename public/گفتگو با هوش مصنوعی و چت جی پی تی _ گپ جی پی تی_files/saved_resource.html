@@ -1,0 +1,236 @@
+
+<!-- saved from url=(0012)about:srcdoc -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body>import React from "react";
+
+type PegId = "A" | "B" | "C";
+
+type Bead = {
+  color: "red" | "green" | "blue";
+  className: string;
+};
+
+const targetState: Record<pegid, bead[]=""> = {
+  A: [
+    { color: "blue", className: "bg-blue-500" },
+    { color: "green", className: "bg-green-500" },
+    { color: "red", className: "bg-red-500" },
+  ],
+  B: [],
+  C: [],
+};
+
+const workingState: Record<pegid, bead[]=""> = {
+  A: [{ color: "red", className: "bg-red-500" }],
+  B: [
+    { color: "blue", className: "bg-blue-500" },
+    { color: "green", className: "bg-green-500" },
+  ],
+  C: [],
+};
+
+function BeadCircle({ bead, size = 54 }: { bead: Bead; size?: number }) {
+  const glow =
+    bead.color === "red"
+      ? "shadow-[0_0_18px_rgba(239,68,68,0.55)]"
+      : bead.color === "green"
+      ? "shadow-[0_0_18px_rgba(34,197,94,0.55)]"
+      : "shadow-[0_0_18px_rgba(59,130,246,0.55)]";
+
+  return (
+    <div classname="{`rounded-full" border="" border-white="" 20="" ${bead.classname}="" ${glow}="" relative="" overflow-hidden`}="" style="{{" width:="" size,="" height:="" background:="" bead.color="==" "red"="" ?="" "radial-gradient(circle="" at="" 30%="" 30%,="" #ff9aa2="" 0%,="" #ef4444="" 35%,="" #991b1b="" 100%)"="" :="" "green"="" #bef264="" #22c55e="" #14532d="" #93c5fd="" #3b82f6="" #1e3a8a="" 100%)",="" }}="">
+      <div classname="absolute inset-0 rounded-full bg-white/10 blur-[1px]">
+      <div classname="absolute left-[20%] top-[16%] h-[26%] w-[26%] rounded-full bg-white/35 blur-[2px]">
+    </div>
+  );
+}
+
+function Peg({
+  id,
+  beads,
+  tall = false,
+}: {
+  id: PegId;
+  beads: Bead[];
+  tall?: boolean;
+}) {
+  return (
+    <div classname="flex flex-col items-center justify-end gap-2">
+      <div classname="relative flex items-end justify-center" style="{{" height:="" tall="" ?="" 240="" :="" 160,="" width:="" 120="" }}="">
+        <div classname="absolute bottom-0 w-[110px] rounded-[999px] border border-white/10 bg-[#1c2740] shadow-[inset_0_8px_18px_rgba(255,255,255,0.06),0_20px_40px_rgba(0,0,0,0.45)]" style="{{" height:="" 26="" }}="">
+        <div classname="absolute bottom-[18px] h-[92%] w-[10px] rounded-full bg-gradient-to-r from-slate-200 via-slate-400 to-slate-100 shadow-[0_0_18px_rgba(255,255,255,0.12)]">
+        <div classname="absolute bottom-[0px] left-1/2 -translate-x-1/2 flex flex-col-reverse items-center gap-2">
+          {beads.map((b, i) =&gt; (
+            <div key="{`${id}-${i}`}" classname="{i" =="=" 0="" ?="" "mb-1"="" :="" ""}="">
+              <beadcircle bead="{b}" size="{54}">
+            </beadcircle></div>
+          ))}
+        </div>
+      </div>
+      <div classname="text-xl font-semibold tracking-wide text-white/90">
+        {id}
+      </div>
+    </div>
+  );
+}
+
+function Panel({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div classname="{`rounded-2xl" border="" border-white="" 10="" bg-white="" [0.035]="" backdrop-blur-md="" shadow-[0_10px_30px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.05)]="" ${classname}`}="">
+      {children}
+    </div>
+  );
+}
+
+export default function TowerOfLondonPage() {
+  return (
+    <div classname="min-h-screen bg-[#071327] text-white overflow-hidden">
+      <div classname="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col px-6 py-5">
+        {/* Header */}
+        <div classname="grid grid-cols-3 items-start">
+          <div classname="flex flex-col gap-4">
+            <panel classname="w-[190px] p-4">
+              <div classname="flex items-center justify-between text-sm text-white/70">
+                <span>زمان باقی‌مانده</span>
+                <div classname="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5">
+                  <span classname="text-xs">◔</span>
+                </div>
+              </div>
+              <div classname="mt-2 text-3xl font-bold tracking-wider">
+                08:45
+              </div>
+            </panel>
+
+            <panel classname="w-[190px] p-4">
+              <div classname="flex items-center justify-between text-sm text-white/70">
+                <span>تعداد حرکات</span>
+                <div classname="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5">
+                  <span classname="text-xs">↻</span>
+                </div>
+              </div>
+              <div classname="mt-2 text-3xl font-bold tracking-wider">05</div>
+            </panel>
+          </div>
+
+          <div classname="flex flex-col items-center text-center">
+            <div classname="mb-3 flex h-16 w-16 items-center justify-center rounded-full border border-white/15 bg-white/[0.03] shadow-[0_0_30px_rgba(70,130,255,0.18)]">
+              <div classname="text-[10px] leading-tight text-white/90">
+                <div classname="font-bold">UT</div>
+                <div classname="opacity-70">LOGO</div>
+              </div>
+            </div>
+
+            <h1 classname="text-[30px] font-bold leading-none">آزمون‌های برج لندن</h1>
+            <div classname="mt-2 text-sm tracking-[0.35em] text-white/70">
+              TOWER OF LONDON
+            </div>
+            <p classname="mt-4 max-w-[620px] text-sm leading-7 text-white/65">
+              در این آزمون، هدف شما رساندن مهره‌ها از چیدمان فعلی به چیدمان هدف
+              است با کمترین تعداد حرکت ممکن.
+            </p>
+          </div>
+
+          <div classname="flex justify-end">
+            <panel classname="w-[230px] p-4">
+              <div classname="flex items-center justify-between">
+                <div>
+                  <div classname="text-sm text-white/65">آزمون فیلیپس – سری B</div>
+                  <div classname="mt-1 text-xs text-white/45">سطح سختی: متوسط</div>
+                </div>
+                <div classname="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xl font-semibold text-white/75">
+                  B
+                </div>
+              </div>
+            </panel>
+          </div>
+        </div>
+
+        {/* Target state */}
+        <div classname="mt-8 grid grid-cols-[1fr_360px] gap-6">
+          <panel classname="p-4">
+            <div classname="mb-3 flex items-center justify-between">
+              <div classname="text-sm text-white/55">حالت هدف</div>
+              <div classname="text-sm text-white/45">◌</div>
+            </div>
+            <div classname="flex items-center justify-center gap-10 py-2">
+              <peg id="A" beads="{targetState.A}">
+              <peg id="B" beads="{targetState.B}">
+              <peg id="C" beads="{targetState.C}">
+            </peg></peg></peg></div>
+          </panel>
+
+          <div>
+        </div>
+
+        {/* Workspace */}
+        <panel classname="mt-7 p-6">
+          <div classname="mb-3 text-center text-sm text-white/60">
+            برای جابجایی مهره‌ها، روی مهره کلیک کرده و سپس میله مقصد را انتخاب کنید.
+          </div>
+
+          <div classname="mb-2 flex items-center justify-between px-2">
+            <div classname="text-xl font-semibold text-white/90">فضای کاری</div>
+            <div classname="text-sm text-white/55">i</div>
+          </div>
+
+          <div classname="mt-4 flex items-end justify-center gap-16 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] px-10 py-8 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.08)]">
+            <div classname="absolute pointer-events-none h-1/2 w-full max-w-[1200px] rounded-[28px] blur-3xl bg-blue-500/5">
+            <peg id="A" beads="{workingState.A}" tall="">
+            <peg id="B" beads="{workingState.B}" tall="">
+            <peg id="C" beads="{workingState.C}" tall="">
+          </peg></peg></peg></div>
+
+          <div classname="mt-8 flex items-center justify-center gap-4">
+            <button classname="rounded-xl border border-white/12 bg-white/5 px-10 py-3 text-sm text-white/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition hover:bg-white/8">
+              بازنشانی
+            </button>
+            <button classname="rounded-xl bg-gradient-to-b from-blue-500 to-blue-700 px-12 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(59,130,246,0.35)] transition hover:from-blue-400 hover:to-blue-600">
+              ثبت پاسخ
+            </button>
+          </div>
+        
+
+        {/* Bottom cards */}
+        <div classname="mt-7 grid grid-cols-[1fr_300px_1fr] gap-4">
+          <panel classname="p-4">
+            <div classname="mb-2 text-sm font-semibold text-white/80">راهنما</div>
+            <ul classname="space-y-2 text-sm leading-7 text-white/60">
+              <li>• فقط یک مهره را می‌توانید در هر حرکت جابجا کنید.</li>
+              <li>• هر مهره‌ای را می‌توانید روی میله خالی قرار دهید.</li>
+              <li>• هر مهره‌ای را نمی‌توانید روی مهره‌ای بزرگتر قرار دهید.</li>
+            </ul>
+          </panel>
+
+          <panel classname="p-4 text-center">
+            <div classname="mb-2 text-sm font-semibold text-white/80">
+              دانشگاه تهران
+            </div>
+            <div classname="text-xs text-white/45">University of Tehran</div>
+          </panel>
+
+          <panel classname="p-4">
+            <div classname="mb-2 text-sm font-semibold text-white/80">
+              اطلاعات آزمون
+            </div>
+            <div classname="grid grid-cols-2 gap-y-2 text-sm text-white/55">
+              <div>نام آزمون</div>
+              <div classname="text-right text-white/80">آزمون فیلیپس – سری B</div>
+              <div>تعداد مهره‌ها</div>
+              <div classname="text-right text-white/80">3</div>
+              <div>تعداد میله‌ها</div>
+              <div classname="text-right text-white/80">3</div>
+              <div>حداکثر حرکات مجاز</div>
+              <div classname="text-right text-white/80">15</div>
+            </div>
+          </panel>
+        </div>
+      </div>
+    </panel></div>
+  );
+}
+</div></div></div></div></div></div></pegid,></pegid,></body></html>

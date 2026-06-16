@@ -1,6 +1,6 @@
 import { RefreshCcw, TimerReset, Scale, Target } from "lucide-react";
 
-export const VARIANT_DATA = {
+export const VARIANT_DATA_INFO = {
 
   "unconstrained-prog": {
     title: "تست بدون محدودیت (صعودی)",

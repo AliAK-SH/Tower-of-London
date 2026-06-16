@@ -1,12 +1,23 @@
+export type Disk = number;
+export type Peg = Disk[];
+export type BoardData = Peg[];
+
+export interface Trial {
+  id: number;
+  start: BoardData;
+  goal: BoardData;
+  optimalMoves?: number;
+}
+
 export interface VariantConfig {
   id: string;
   name: string;
   description: string;
   numDisks: number;
-  pegCapacities: number[]; // e.g., [1, 2, 3] or [5, 5, 5]
+  pegCapacities: number[];
   hasTimeLimit: boolean;
   timeLimitMs?: number;
   hasMoveLimit: boolean;
-  moveLimitType?: 'optimal' | 'fixed'; // Some limit moves based on optimal + X
+  moveLimitType?: 'optimal' | 'fixed';
   trials: Trial[];
 }

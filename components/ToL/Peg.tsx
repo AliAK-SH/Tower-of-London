@@ -1,41 +1,60 @@
-import { useGameStore } from "@/store/useGameStore";
-import { CAPACITIES } from "../../lib/gameLogic";
-import { Disk } from "./Disk"
+// components/ToL/Peg.tsx
+import { Disk } from "./Disk";
 
-export function Peg({ pegIndex, disks, isGoal = false }: { pegIndex: number, disks: number[], isGoal?: boolean }) {
-  const { handlePegClick, selectedPeg } = useGameStore();
-  const isSelected = selectedPeg === pegIndex;
+interface PegProps {
+  pegIndex: number;
+  disks: number[];
+  capacity: number;
+  isSelected?: boolean;
+  isGoal?: boolean;
+  onClick?: () => void;
+  label?: string;
+}
 
-  // Peg height logic: 1 unit per disk capacity + base
-const heights = CAPACITIES.map(cap => {
-  if (cap === 1) return "h-20";
-  if (cap === 2) return "h-36";
-  return "h-52"; // cap === 3
-});
+export function Peg({ 
+  pegIndex, 
+  disks, 
+  capacity, 
+  isSelected = false, 
+  isGoal = false, 
+  onClick, 
+  label 
+}: PegProps) {
+  
+  // Visual height based on peg capacity (1=small, 2=medium, 3=large)
+  const heightClass = capacity === 1 ? "h-24" : capacity === 2 ? "h-40" : "h-56";
 
   return (
     <div 
-      onClick={() => !isGoal && handlePegClick(pegIndex)}
-      className="relative flex flex-col-reverse items-center w-32 h-64 cursor-pointer"
+      className={`flex flex-col items-center justify-end flex-1 px-2 ${!isGoal ? "cursor-pointer group" : ""}`} 
+      onClick={onClick}
     >
-      {/* Visual Peg Pole - Variable Height */}
-      {!isGoal && (
-        <div className={`absolute bottom-0 w-3 bg-gray-600 rounded-t-full transition-colors ${heights[pegIndex]} 
-          ${isSelected ? "bg-blue-400" : "bg-gray-700"}`} 
+      <div className={`relative flex ${heightClass} w-full items-end justify-center`}>
+        {/* Pole */}
+        <div 
+          className={`absolute bottom-0 h-full w-3 rounded-full transition-colors 
+          ${isSelected ? "bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.5)]" : "bg-gray-600"}`} 
         />
-      )}
-      
-      <div className="flex flex-col-reverse items-center w-full pb-2 z-10">
-        {disks.map((size, i) => (
-          <Disk 
-            key={i} 
-            size={size} 
-            isTop={i === disks.length - 1} 
-            isSelected={isSelected && i === disks.length - 1} 
-          />
-        ))}
+        
+        {/* Base */}
+        <div className="absolute bottom-0 h-3 w-24 rounded-full bg-[#101826] border border-white/10 shadow-md" />
+        
+        {/* Beads Stack */}
+        <div className="absolute bottom-2 flex flex-col-reverse items-center gap-1">
+          {disks.map((diskId, i) => (
+            <Disk 
+              key={`${pegIndex}-${i}`} 
+              color={String(diskId)} 
+              isSelected={isSelected && i === disks.length - 1} 
+            />
+          ))}
+        </div>
       </div>
-      <div className="absolute bottom-[-10px] w-36 h-3 bg-gray-800 rounded-full" />
+      {label && (
+        <div className="mt-4 text-[10px] font-bold text-white/40 tracking-widest uppercase">
+          {label}
+        </div>
+      )}
     </div>
   );
 }

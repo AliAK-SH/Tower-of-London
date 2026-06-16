@@ -43,17 +43,17 @@ const Home: React.FC = () => {
           />
         </div>
 
-        <h1 className="text-5xl font-black mb-4 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-black mb-0.5 py-1 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent">
           آزمون‌های برج لندن
         </h1>
 
-        <div className="flex justify-center items-center gap-2 mb-6">
-          <span className="h-px w-8 bg-blue-500"></span>
-          <span className="text-blue-400 tracking-[0.3em] uppercase text-sm">
-            Tower of London
-          </span>
-          <span className="h-px w-8 bg-blue-500"></span>
-        </div>
+          <div className="flex justify-center items-center gap-2 mb-6 mt-6">
+            <span className="h-px w-8 bg-blue-500"></span>
+            <span className="text-blue-400 tracking-[0.3em] uppercase text-sm">
+              Tower of London
+            </span>
+            <span className="h-px w-8 bg-blue-500"></span>
+          </div>
 
         <p className="max-w-2xl mx-auto text-gray-400 leading-relaxed text-sm">
           مجموعه‌ای جامع از آزمون‌های شناختی مبتنی بر تکلیف برج لندن برای ارزیابی برنامه‌ریزی، حل مسئله، و کنترل اجرایی.
