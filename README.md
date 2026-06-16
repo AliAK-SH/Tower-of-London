@@ -47,3 +47,5 @@ Data is exported into three distinct CSV files for easier analysis:
 *   **Frontend**: HTML5, CSS3, and Vanilla JavaScript.
 *   **Interaction**: Optimized click/tap-based model for desktop use.
 *   **Data Export**: Client-side CSV generation for immediate research data retrieval.
+
+Stay Posted.
