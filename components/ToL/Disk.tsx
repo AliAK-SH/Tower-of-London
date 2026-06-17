@@ -4,13 +4,17 @@ export function Disk({ color, isSelected }: { color: string, isSelected?: boolea
     red: "bg-[radial-gradient(circle_at_30%_28%,#ff9b9b,#ef4444_40%,#991b1b_100%)]",
     green: "bg-[radial-gradient(circle_at_30%_28%,#b9ff98,#84cc16_40%,#365314_100%)]",
     blue: "bg-[radial-gradient(circle_at_30%_28%,#9ecbff,#3b82f6_40%,#1e3a8a_100%)]",
+    yellow: "bg-[radial-gradient(circle_at_30%_28%,#fef08a,#eab308_40%,#854d0e_100%)]",
+    purple: "bg-[radial-gradient(circle_at_30%_28%,#d8b4fe,#a855f7_40%,#581c87_100%)]",
   };
 
-  // Map numerical IDs (1,2,3) or strings to color keys
+  // Map numerical IDs (1-5) or strings to color keys
   const colorKey = 
     color === "1" || color === "red" ? "red" : 
     color === "2" || color === "green" ? "green" : 
-    "blue";
+    color === "3" || color === "blue" ? "blue" :
+    color === "4" || color === "yellow" ? "yellow" :
+    "purple";
 
   return (
     <div 

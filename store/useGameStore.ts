@@ -1,9 +1,8 @@
-// src/store/useGameStore.ts
 import { create } from "zustand";
 import { BoardData } from "../types";
 import { isValidMove as validateMove, isGoalReached } from "../lib/gameLogic";
 
-interface GameState {
+export interface MetricsState {
   config: any;
   board: BoardData;
   goalBoard: BoardData;
@@ -11,23 +10,41 @@ interface GameState {
   moveCount: number;
   isComplete: boolean;
   isFailed: boolean;
-  
-  // Trial Timer
+
   timeLeft: number | null;
   timer?: NodeJS.Timeout;
-
-  // Global Session Timer
   totalTime: number;
   totalTimer?: NodeJS.Timeout;
 
+  _sessionStartTime: number;
+  _sessionDate: string;
+  _trialStartTime: number;
+  _firstMoveTime: number | null;
+  _finalCorrectSubmitTime: number;
+  _currentTrialIndex: number;
+
+  eventLog: any[];
+  trialResults: any[];
+  totalAttempts: number;
+  trialIncorrectAttempts: number;
+  trialIncorrectConfigs: string[];
+  isTestFinished: boolean;
+  testId: string;
+
+  sessionTotalMoveCount: number;
+  sessionTotalOptimalMoves: number;
+  sessionTotalSuccess: number;
+  sessionTotalOptimalSolve: number;
+
   setConfig: (config: any) => void;
-  startTrial: (initial: BoardData, goal: BoardData) => void;
+  startTrial: (initial: BoardData, goal: BoardData, trialIndex?: number) => void;
   handlePegClick: (pegIndex: number) => void;
+  handleSubmit: (trialIndex: number, optimalMoves: number | undefined) => { action: "shake" } | { action: "finalize"; isLastTrial: boolean };
   stopTotalTimer: () => void;
   resetGame: () => void;
 }
 
-export const useGameStore = create<GameState>((set, get) => ({
+export const useGameStore = create<MetricsState>((set, get) => ({
   config: null,
   board: [[], [], []] as BoardData,
   goalBoard: [[], [], []] as BoardData,
@@ -38,20 +55,43 @@ export const useGameStore = create<GameState>((set, get) => ({
   timeLeft: null,
   totalTime: 0,
 
-  setConfig: (config) => set({ config }),
+  _sessionStartTime: 0,
+  _sessionDate: "",
+  _trialStartTime: 0,
+  _firstMoveTime: null,
+  _finalCorrectSubmitTime: 0,
+  _currentTrialIndex: 0,
 
-  startTrial: (initial, goal) => {
+  eventLog: [],
+  trialResults: [],
+  totalAttempts: 0,
+  trialIncorrectAttempts: 0,
+  trialIncorrectConfigs: [],
+  isTestFinished: false,
+  testId: "",
+
+  sessionTotalMoveCount: 0,
+  sessionTotalOptimalMoves: 0,
+  sessionTotalSuccess: 0,
+  sessionTotalOptimalSolve: 0,
+
+  setConfig: (config) => set({ config, testId: config?.id ?? "" }),
+
+  startTrial: (initial, goal, trialIndex = 0) => {
     const { config, timer: oldTimer, totalTimer } = get();
-    
+
     if (oldTimer) clearInterval(oldTimer);
 
-    // Start Global Timer if it hasn't started yet
     if (!totalTimer) {
+      const now = Date.now();
+      set({ _sessionStartTime: now, _sessionDate: new Date(now).toISOString().slice(0, 10) });
       const tTimer = setInterval(() => {
         set((state) => ({ totalTime: state.totalTime + 1 }));
       }, 1000);
       set({ totalTimer: tTimer });
     }
+
+    const now = Date.now();
 
     set({
       board: initial,
@@ -61,15 +101,17 @@ export const useGameStore = create<GameState>((set, get) => ({
       isComplete: false,
       isFailed: false,
       timeLeft: config?.game?.trialTimeLimit ?? null,
+      _trialStartTime: now,
+      _firstMoveTime: null,
+      _currentTrialIndex: trialIndex,
+      trialIncorrectAttempts: 0,
+      trialIncorrectConfigs: [],
     });
 
     if (config?.game?.trialTimeLimit) {
       const timer = setInterval(() => {
         const { timeLeft, isComplete } = get();
-        if (isComplete) {
-          clearInterval(timer);
-          return;
-        }
+        if (isComplete) { clearInterval(timer); return; }
         if (timeLeft === null) return;
         if (timeLeft <= 1) {
           clearInterval(timer);
@@ -83,42 +125,154 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   handlePegClick: (pegIndex) => {
-    const { board, selectedPeg, goalBoard, moveCount, config, isComplete, isFailed, timer } = get();
-    if (!config || isComplete || isFailed) return;
+    const state = get();
+    if (!state.config || state.isComplete || state.isFailed) return;
 
-    if (selectedPeg === null) {
-      if (board[pegIndex].length > 0) set({ selectedPeg: pegIndex });
+    if (state.selectedPeg === null) {
+      if (state.board[pegIndex].length > 0) set({ selectedPeg: pegIndex });
       return;
     }
 
-    if (selectedPeg === pegIndex) {
+    if (state.selectedPeg === pegIndex) {
       set({ selectedPeg: null });
       return;
     }
 
-    const validation = validateMove(board, selectedPeg, pegIndex, config.game.pegCapacities);
+    const validation = validateMove(state.board, state.selectedPeg, pegIndex, state.config.game.pegCapacities);
 
-    if (validation.valid) {
-      const newBoard = board.map((p) => [...p]) as BoardData;
-      const disk = newBoard[selectedPeg].pop();
-      if (disk !== undefined) newBoard[pegIndex].push(disk);
+    if (!validation.valid) {
+      set({ selectedPeg: state.board[pegIndex].length > 0 ? pegIndex : null });
+      return;
+    }
 
-      const reached = isGoalReached(newBoard, goalBoard);
-      const newMoveCount = moveCount + 1;
-      let failed = (config.game.moveLimit && newMoveCount > config.game.moveLimit);
+    const newBoard = state.board.map((p) => [...p]) as BoardData;
+    const disk = newBoard[state.selectedPeg].pop();
+    if (disk !== undefined) newBoard[pegIndex].push(disk);
 
-      if (reached && timer) clearInterval(timer);
+    const reached = isGoalReached(newBoard, state.goalBoard);
+    const newMoveCount = state.moveCount + 1;
+    const failed = state.config.game.hasMoveLimit && state.config.game.moveLimit && newMoveCount > state.config.game.moveLimit;
+
+    if (reached && state.timer) clearInterval(state.timer);
+
+    const firstMove = state._firstMoveTime ?? Date.now();
+    const now = Date.now();
+
+    const event = {
+      userName: "", userId: "", testId: state.testId, trialIndex: state._currentTrialIndex,
+      sessionDate: state._sessionDate, eventDateTime: new Date(now).toISOString(),
+      trialTimeMs: now - state._trialStartTime, totalTimeMs: now - state._sessionStartTime,
+      moveCount: newMoveCount,
+      incorrectCompletionAttempts: state.trialIncorrectAttempts,
+      incorrectCompletionConfig: JSON.stringify(state.trialIncorrectConfigs),
+      eventType: "move" as const,
+    };
+
+    set({
+      board: newBoard, moveCount: newMoveCount, isComplete: reached, isFailed: failed,
+      selectedPeg: null, _firstMoveTime: firstMove,
+      eventLog: [...state.eventLog, event],
+    });
+  },
+
+  handleSubmit: (trialIndex, optimalMoves) => {
+    const state = get();
+    const now = Date.now();
+    const trialTimeMs = now - state._trialStartTime;
+    const totalTimeMs = now - state._sessionStartTime;
+    const configMatches = isGoalReached(state.board, state.goalBoard);
+    const newTotalAttempts = state.totalAttempts + 1;
+    const isLast = trialIndex >= (state.config?.trials?.length ?? 1);
+
+    // --- INCORRECT SUBMIT (board doesn't match goal, trial not failed) ---
+    if (!configMatches && !state.isFailed) {
+      const snapshot = JSON.stringify(state.board.map((p) => [...p]));
+      const newConfigs = [...state.trialIncorrectConfigs, snapshot];
+      const newIncorrect = state.trialIncorrectAttempts + 1;
+
+      const event = {
+        userName: "", userId: "", testId: state.testId, trialIndex,
+        sessionDate: state._sessionDate, eventDateTime: new Date(now).toISOString(),
+        trialTimeMs, totalTimeMs, moveCount: state.moveCount,
+        incorrectCompletionAttempts: newIncorrect,
+        incorrectCompletionConfig: JSON.stringify(newConfigs),
+        eventType: "incorrectSubmit" as const,
+      };
 
       set({
-        board: newBoard,
-        moveCount: newMoveCount,
-        isComplete: reached,
-        isFailed: failed,
-        selectedPeg: null,
+        totalAttempts: newTotalAttempts,
+        trialIncorrectAttempts: newIncorrect,
+        trialIncorrectConfigs: newConfigs,
+        eventLog: [...state.eventLog, event],
       });
-    } else {
-      set({ selectedPeg: board[pegIndex].length > 0 ? pegIndex : null });
+
+      return { action: "shake" as const };
     }
+
+    // --- CORRECT SUBMIT (board matches goal, or isFailed forces finalize) ---
+    const firstMoveMs = state._firstMoveTime !== null
+      ? state._firstMoveTime - state._trialStartTime
+      : trialTimeMs;
+    const planningMs = firstMoveMs;
+    const implMs = Math.max(0, trialTimeMs - firstMoveMs);
+    const optMoves = optimalMoves ?? 0;
+    const excess = state.moveCount - optMoves;
+
+    const trialSuccess: 0 | 1 = (state.isFailed || !configMatches) ? 0 : 1;
+
+    let optimalSolve: 0 | 1;
+    if (state.config?.game?.hasMoveLimit) {
+      optimalSolve = trialSuccess;
+    } else {
+      optimalSolve = state.moveCount === optMoves ? 1 : 0;
+    }
+
+    const remainingTimeMs = state.config?.game?.hasTrialTimeLimit && state.config?.game?.trialTimeLimit
+      ? (state.config.game.trialTimeLimit * 1000) - trialTimeMs
+      : -1;
+
+    const boardSnapshot = JSON.stringify(state.trialIncorrectConfigs);
+
+    const resultEvent = {
+      userName: "", userId: "", testId: state.testId, trialIndex,
+      sessionDate: state._sessionDate, eventDateTime: new Date(now).toISOString(),
+      trialTimeMs, totalTimeMs, moveCount: state.moveCount,
+      incorrectCompletionAttempts: state.trialIncorrectAttempts,
+      incorrectCompletionConfig: boardSnapshot,
+      eventType: configMatches ? "correctSubmit" as const : "incorrectSubmit" as const,
+    };
+
+    const trialResult = {
+      userName: "", userId: "", testId: state.testId, trialIndex,
+      sessionDate: state._sessionDate,
+      firstMoveTimeMs: firstMoveMs, planningTimeMs: planningMs,
+      implementationTimeMs: implMs, trialTimeMs, remainingTimeMs,
+      moveCount: state.moveCount, excessMoves: excess,
+      incorrectCompletionAttempts: state.trialIncorrectAttempts,
+      incorrectCompletionConfig: boardSnapshot,
+      trialSuccess, optimalSolve,
+    };
+
+    set({
+      isComplete: true,
+      totalAttempts: newTotalAttempts,
+      eventLog: [...state.eventLog, resultEvent],
+      trialResults: [...state.trialResults, trialResult],
+      isTestFinished: isLast,
+      _finalCorrectSubmitTime: now,
+      sessionTotalMoveCount: state.sessionTotalMoveCount + state.moveCount,
+      sessionTotalOptimalMoves: state.sessionTotalOptimalMoves + optMoves,
+      sessionTotalSuccess: state.sessionTotalSuccess + trialSuccess,
+      sessionTotalOptimalSolve: state.sessionTotalOptimalSolve + optimalSolve,
+    });
+
+    if (isLast) {
+      const { totalTimer } = get();
+      if (totalTimer) clearInterval(totalTimer);
+      set({ totalTimer: undefined });
+    }
+
+    return { action: "finalize" as const, isLastTrial: isLast };
   },
 
   stopTotalTimer: () => {
@@ -132,13 +286,15 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (timer) clearInterval(timer);
     if (totalTimer) clearInterval(totalTimer);
     set({
-      selectedPeg: null,
-      moveCount: 0,
-      isComplete: false,
-      isFailed: false,
-      timeLeft: null,
-      totalTime: 0,
-      totalTimer: undefined
+      selectedPeg: null, moveCount: 0, isComplete: false, isFailed: false,
+      timeLeft: null, totalTime: 0, totalTimer: undefined,
+      _sessionStartTime: 0, _sessionDate: "", _trialStartTime: 0,
+      _firstMoveTime: null, _finalCorrectSubmitTime: 0, _currentTrialIndex: 0,
+      eventLog: [], trialResults: [], totalAttempts: 0,
+      trialIncorrectAttempts: 0, trialIncorrectConfigs: [],
+      isTestFinished: false, testId: "",
+      sessionTotalMoveCount: 0, sessionTotalOptimalMoves: 0,
+      sessionTotalSuccess: 0, sessionTotalOptimalSolve: 0,
     });
   },
 }));

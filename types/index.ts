@@ -29,3 +29,59 @@ export interface VariantConfig {
   };
   trials: Trial[];
 }
+
+export type EventType = "move" | "incorrectSubmit" | "correctSubmit";
+
+export interface EventLogRow {
+  userName: string;
+  userId: string;
+  testId: string;
+  trialIndex: number;
+  sessionDate: string;
+  eventDateTime: string;
+  trialTimeMs: number;
+  totalTimeMs: number;
+  moveCount: number;
+  incorrectCompletionAttempts: number;
+  incorrectCompletionConfig: string;
+  eventType: EventType;
+}
+
+export interface TrialResultRow {
+  userName: string;
+  userId: string;
+  testId: string;
+  trialIndex: number;
+  sessionDate: string;
+  firstMoveTimeMs: number;
+  planningTimeMs: number;
+  implementationTimeMs: number;
+  trialTimeMs: number;
+  remainingTimeMs: number;
+  moveCount: number;
+  excessMoves: number;
+  incorrectCompletionAttempts: number;
+  incorrectCompletionConfig: string;
+  trialSuccess: 0 | 1;
+  optimalSolve: 0 | 1;
+}
+
+export interface SessionSummaryRow {
+  userName: string;
+  userId: string;
+  testId: string;
+  sessionDate: string;
+  sessionStartTime: string;
+  totalTrials: number;
+  totalAttempts: number;
+  totalTimeMs: number;
+  totalMoveCount: number;
+  totalOptimalMoves: number;
+  totalExcessMoves: number;
+  totalSuccess: number;
+  successRate: number;
+  totalOptimalSolve: number;
+  optimalSolveRate: number;
+  moveAccuracy: number;
+  attemptAccuracy: number;
+}
