@@ -13,6 +13,7 @@ export interface VariantConfig {
   id: string;
   title: string;
   sub: string;
+  hasTimeLimit: boolean;
   rules: {
     title: string;
     description: string;
@@ -21,8 +22,10 @@ export interface VariantConfig {
   game: {
     disks: number;
     pegCapacities: number[];
-    trialTimeLimit?: number;
+    hasMoveLimit: boolean;
     moveLimit?: number;
+    hasTrialTimeLimit: boolean;
+    trialTimeLimit?: number;
   };
   trials: Trial[];
 }

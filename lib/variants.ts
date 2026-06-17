@@ -9,6 +9,7 @@ export const VARIANT_DATA_TEST: Record<string, VariantConfig> = {
     id: "fimbel-old",
     title: "آزمون فیمبل (سالمندان)",
     sub: "۳ دیسک، ۱۵ مرحله تخصصی",
+    hasTimeLimit: false,
     rules: [
       { title: "حرکت تک مهره‌ای", description: "در هر مرحله فقط یک مهره می‌تواند حرکت کند.", icon: RefreshCcw },
       { title: "محدودیت ظرفیت میله‌ها", description: "هر میله ظرفیت مشخصی دارد.", icon: TimerReset },
@@ -18,10 +19,10 @@ export const VARIANT_DATA_TEST: Record<string, VariantConfig> = {
     game: {
       disks: 3,
       pegCapacities: [1, 2, 3],
-      trialTimeLimit: undefined,
-      moveLimit: undefined,
+      hasMoveLimit: false,
+      hasTrialTimeLimit: false,
     },
-    
+
     trials: FIMBEL_OLD_TRIALS,
   },
 
@@ -29,6 +30,7 @@ export const VARIANT_DATA_TEST: Record<string, VariantConfig> = {
     id: "fimbel-young",
     title: "آزمون فیمبل (جوانان)",
     sub: "۳ دیسک، ۳۵ مرحله تخصصی",
+    hasTimeLimit: false,
     rules: [
       { title: "حرکت تک مهره‌ای", description: "در هر حرکت فقط یک مهره قابل جابه‌جایی است.", icon: RefreshCcw },
       { title: "محدودیت ظرفیت میله‌ها", description: "هر میله ظرفیت مشخصی برای مهره‌ها دارد.", icon: TimerReset },
@@ -38,8 +40,8 @@ export const VARIANT_DATA_TEST: Record<string, VariantConfig> = {
     game: {
       disks: 3,
       pegCapacities: [1, 2, 3],
-      trialTimeLimit: undefined,
-      moveLimit: undefined,
+      hasMoveLimit: false,
+      hasTrialTimeLimit: false,
     },
     trials: FIMBEL_YOUNG_TRIALS,
   }

@@ -139,7 +139,7 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
                 <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">◔</div>
               </div>
               <div className="mt-2 text-3xl font-bold tracking-wider">
-                {formatTime(timeLeft)}
+                {variant.game.hasTrialTimeLimit ? formatTime(variant.game.trialTimeLimit ?? null) : "--:--"}
               </div>
             </Panel>
 
@@ -149,7 +149,7 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
                 <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">↻</div>
               </div>
               <div className="mt-2 text-3xl font-bold tracking-wider">
-                {String(moveCount).padStart(2, "0")}
+                {variant.game.hasMoveLimit ? variant.game.moveLimit ?? "--" : "--"}
               </div>
             </Panel>
           </div>
