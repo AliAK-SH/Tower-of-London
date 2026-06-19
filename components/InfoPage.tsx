@@ -29,7 +29,7 @@ const InfoPage: React.FC = () => {
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#020b18] text-white flex items-start justify-center px-4 py-6 md:py-8 font-sans">
-      <div className="w-full max-w-[760px]">
+      <div className="w-full max-w-6xl">
 
       {/* Header Area */}
       <header className="text-center mb-12 flex flex-col items-center">

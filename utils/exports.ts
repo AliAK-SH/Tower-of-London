@@ -25,7 +25,8 @@ export async function exportAll(
   // 1. event_log.csv
   const eventColumns = [
     "userName", "userId", "testId", "trialIndex", "sessionDate",
-    "eventDateTime", "trialTimeMs", "totalTimeMs", "moveCount",
+    "eventDateTime", "currentPattern", "endPattern", "eventTime",
+    "trialTimeMs", "totalTimeMs", "moveCount",
     "incorrectCompletionAttempts", "incorrectCompletionConfig", "eventType"
   ];
   zip.file("event_log.csv", "\ufeff" + toCSV(eventLog, eventColumns));
@@ -33,6 +34,7 @@ export async function exportAll(
   // 2. test_results.csv
   const resultColumns = [
     "userName", "userId", "testId", "trialIndex", "sessionDate",
+    "startPattern", "endPattern",
     "firstMoveTimeMs", "planningTimeMs", "implementationTimeMs",
     "trialTimeMs", "remainingTimeMs", "moveCount", "excessMoves",
     "incorrectCompletionAttempts", "incorrectCompletionConfig",

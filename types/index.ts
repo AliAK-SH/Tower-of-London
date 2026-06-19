@@ -30,7 +30,7 @@ export interface VariantConfig {
   trials: Trial[];
 }
 
-export type EventType = "move" | "incorrectSubmit" | "correctSubmit";
+export type EventType = "start" | "move" | "incorrectSubmit" | "correctSubmit";
 
 export interface EventLogRow {
   userName: string;
@@ -39,6 +39,9 @@ export interface EventLogRow {
   trialIndex: number;
   sessionDate: string;
   eventDateTime: string;
+  currentPattern: string;
+  endPattern: string;
+  eventTime: number;
   trialTimeMs: number;
   totalTimeMs: number;
   moveCount: number;
@@ -53,6 +56,8 @@ export interface TrialResultRow {
   testId: string;
   trialIndex: number;
   sessionDate: string;
+  startPattern: string;
+  endPattern: string;
   firstMoveTimeMs: number;
   planningTimeMs: number;
   implementationTimeMs: number;

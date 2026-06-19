@@ -22,6 +22,7 @@ export interface MetricsState {
   _firstMoveTime: number | null;
   _finalCorrectSubmitTime: number;
   _currentTrialIndex: number;
+  _lastEventTotalTime: number;
 
   eventLog: any[];
   trialResults: any[];
@@ -61,6 +62,7 @@ export const useGameStore = create<MetricsState>((set, get) => ({
   _firstMoveTime: null,
   _finalCorrectSubmitTime: 0,
   _currentTrialIndex: 0,
+  _lastEventTotalTime: 0,
 
   eventLog: [],
   trialResults: [],
@@ -122,11 +124,24 @@ export const useGameStore = create<MetricsState>((set, get) => ({
       }, 1000);
       set({ timer });
     }
+
+    const { _sessionStartTime, testId, _sessionDate, eventLog, board, goalBoard } = get();
+    const totalTimeMs = now - _sessionStartTime;
+    const startEvent = {
+      userName: "", userId: "", testId, trialIndex,
+      sessionDate: _sessionDate, eventDateTime: new Date(now).toISOString(),
+      currentPattern: JSON.stringify(board),
+      endPattern: JSON.stringify(goalBoard),
+      eventTime: 0, trialTimeMs: 0, totalTimeMs, moveCount: 0,
+      incorrectCompletionAttempts: 0, incorrectCompletionConfig: "[]",
+      eventType: "start" as const,
+    };
+    set({ eventLog: [...eventLog, startEvent], _lastEventTotalTime: totalTimeMs });
   },
 
   handlePegClick: (pegIndex) => {
     const state = get();
-    if (!state.config || state.isComplete || state.isFailed) return;
+    if (!state.config || state.isFailed) return;
 
     if (state.selectedPeg === null) {
       if (state.board[pegIndex].length > 0) set({ selectedPeg: pegIndex });
@@ -149,19 +164,20 @@ export const useGameStore = create<MetricsState>((set, get) => ({
     const disk = newBoard[state.selectedPeg].pop();
     if (disk !== undefined) newBoard[pegIndex].push(disk);
 
-    const reached = isGoalReached(newBoard, state.goalBoard);
     const newMoveCount = state.moveCount + 1;
     const failed = state.config.game.hasMoveLimit && state.config.game.moveLimit && newMoveCount > state.config.game.moveLimit;
-
-    if (reached && state.timer) clearInterval(state.timer);
 
     const firstMove = state._firstMoveTime ?? Date.now();
     const now = Date.now();
 
+    const totalTimeMs = now - state._sessionStartTime;
     const event = {
       userName: "", userId: "", testId: state.testId, trialIndex: state._currentTrialIndex,
       sessionDate: state._sessionDate, eventDateTime: new Date(now).toISOString(),
-      trialTimeMs: now - state._trialStartTime, totalTimeMs: now - state._sessionStartTime,
+      currentPattern: JSON.stringify(newBoard),
+      endPattern: JSON.stringify(state.goalBoard),
+      eventTime: totalTimeMs - state._lastEventTotalTime,
+      trialTimeMs: now - state._trialStartTime, totalTimeMs,
       moveCount: newMoveCount,
       incorrectCompletionAttempts: state.trialIncorrectAttempts,
       incorrectCompletionConfig: JSON.stringify(state.trialIncorrectConfigs),
@@ -169,9 +185,10 @@ export const useGameStore = create<MetricsState>((set, get) => ({
     };
 
     set({
-      board: newBoard, moveCount: newMoveCount, isComplete: reached, isFailed: failed,
+      board: newBoard, moveCount: newMoveCount, isFailed: failed,
       selectedPeg: null, _firstMoveTime: firstMove,
       eventLog: [...state.eventLog, event],
+      _lastEventTotalTime: totalTimeMs,
     });
   },
 
@@ -193,6 +210,9 @@ export const useGameStore = create<MetricsState>((set, get) => ({
       const event = {
         userName: "", userId: "", testId: state.testId, trialIndex,
         sessionDate: state._sessionDate, eventDateTime: new Date(now).toISOString(),
+        currentPattern: JSON.stringify(state.board),
+        endPattern: JSON.stringify(state.goalBoard),
+        eventTime: totalTimeMs - state._lastEventTotalTime,
         trialTimeMs, totalTimeMs, moveCount: state.moveCount,
         incorrectCompletionAttempts: newIncorrect,
         incorrectCompletionConfig: JSON.stringify(newConfigs),
@@ -204,6 +224,7 @@ export const useGameStore = create<MetricsState>((set, get) => ({
         trialIncorrectAttempts: newIncorrect,
         trialIncorrectConfigs: newConfigs,
         eventLog: [...state.eventLog, event],
+        _lastEventTotalTime: totalTimeMs,
       });
 
       return { action: "shake" as const };
@@ -236,15 +257,21 @@ export const useGameStore = create<MetricsState>((set, get) => ({
     const resultEvent = {
       userName: "", userId: "", testId: state.testId, trialIndex,
       sessionDate: state._sessionDate, eventDateTime: new Date(now).toISOString(),
+      currentPattern: JSON.stringify(state.board),
+      endPattern: JSON.stringify(state.goalBoard),
+      eventTime: totalTimeMs - state._lastEventTotalTime,
       trialTimeMs, totalTimeMs, moveCount: state.moveCount,
       incorrectCompletionAttempts: state.trialIncorrectAttempts,
       incorrectCompletionConfig: boardSnapshot,
       eventType: configMatches ? "correctSubmit" as const : "incorrectSubmit" as const,
     };
 
+    const currentTrialData = state.config?.trials[trialIndex - 1];
     const trialResult = {
       userName: "", userId: "", testId: state.testId, trialIndex,
       sessionDate: state._sessionDate,
+      startPattern: JSON.stringify(currentTrialData?.start ?? []),
+      endPattern: JSON.stringify(currentTrialData?.goal ?? []),
       firstMoveTimeMs: firstMoveMs, planningTimeMs: planningMs,
       implementationTimeMs: implMs, trialTimeMs, remainingTimeMs,
       moveCount: state.moveCount, excessMoves: excess,
@@ -259,6 +286,7 @@ export const useGameStore = create<MetricsState>((set, get) => ({
       eventLog: [...state.eventLog, resultEvent],
       trialResults: [...state.trialResults, trialResult],
       isTestFinished: isLast,
+      _lastEventTotalTime: totalTimeMs,
       _finalCorrectSubmitTime: now,
       sessionTotalMoveCount: state.sessionTotalMoveCount + state.moveCount,
       sessionTotalOptimalMoves: state.sessionTotalOptimalMoves + optMoves,
