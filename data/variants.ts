@@ -1,4 +1,4 @@
-import { RefreshCcw, TimerReset, Scale, Target } from "lucide-react";
+import { RefreshCcw, TimerReset, Scale, Target, MoveRight, Layers, Columns3 } from "lucide-react";
 
 export const VARIANT_DATA_INFO = {
 
@@ -248,27 +248,27 @@ export const VARIANT_DATA_INFO = {
   "tol-r": {
     title: "آزمون TOL‑R",
     sub: "۳ دیسک، ۳۰ مسئله با محدودیت زمان",
-    rules: [
-      {
-        title: "حرکت تک‌مهره‌ای",
-        description: "در هر بار فقط یک مهره قابل جابه‌جایی است.",
-        icon: RefreshCcw
-      },
-      {
-        title: "محدودیت زمانی",
-        description: "برای هر مسئله زمان محدودی در نظر گرفته شده است.",
-        icon: TimerReset
-      },
-      {
-        title: "قانون اندازه مهره",
-        description: "مهره بزرگ‌تر روی کوچک‌تر قرار نمی‌گیرد.",
-        icon: Scale
-      },
-      {
-        title: "برنامه‌ریزی قبل از حرکت",
-        description: "بهترین عملکرد زمانی است که قبل از حرکت فکر کنید.",
-        icon: Target
-      }
+    rules : [
+  {
+    title: "حرکت تک مهره‌ای",
+    description: "در هر مرحله فقط یک مهره می‌تواند حرکت کند.",
+    icon: MoveRight,
+  },
+  {
+    title: "مهره‌های قابل حرکت",
+    description: "تنها مهره‌هایی که در بالای میله قرار دارند قابل جابه‌جایی هستند.",
+    icon: Layers,
+  },
+  {
+    title: "محدودیت ظرفیت میله‌ها",
+    description: "هر میله ظرفیت مشخصی دارد.",
+    icon: Columns3,
+  },
+  {
+    title: "محدودیت زمان و حرکت",
+    description: "هر مرحله دارای محدودیت زمانی و تعداد حرکات است.",
+    icon: TimerReset,
+  },
     ]
   },
 

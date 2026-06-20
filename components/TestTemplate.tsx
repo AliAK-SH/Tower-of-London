@@ -1,12 +1,15 @@
+
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import ThemeToggle from "./ThemeToggle";
+import ThemeLogo from "./ThemeLogo";
 import { VARIANT_DATA_TEST } from "@/lib/variants";
 import { VARIANT_DATA_INFO } from "../data/variants";
 import { useGameStore } from "@/store/useGameStore";
 import { isGoalReached } from "@/lib/gameLogic";
 import { exportAll } from "@/utils/exports";
 import { SessionSummaryRow, EventLogRow, TrialResultRow } from "@/types";
-import { BASE_ASSET, POLE_ASSETS, getDiskAssetPath, getDiskZIndex, getDiskColorFilter } from "@/utils/assetHelpers";
+import { getBaseAsset, getPoleAssets, getDiskAssetPath, getDiskZIndex, getDiskColorFilter } from "@/utils/assetHelpers";
 
 export default function TestTemplate({ variantId }: { variantId: string }) {
   const variant = VARIANT_DATA_TEST[variantId] || VARIANT_DATA_TEST["fimbel-young"];
@@ -38,6 +41,8 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
     config,
     _finalCorrectSubmitTime,
   } = useGameStore();
+  const baseAsset = getBaseAsset(variant.game.pegCapacities);
+  const poleAssets = getPoleAssets(variant.game.pegCapacities);
 
   const params = new URLSearchParams(window.location.search);
   const variantIdInfo = params.get("variant") || "shallice-random";
@@ -58,6 +63,31 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
     const firstTrial = variant.trials[0];
     startTrial(firstTrial.start, firstTrial.goal, 1);
   }, [variantId, setConfig, startTrial, variant]);
+
+  const isLastTrial = trialIndex === variant.trials.length - 1;
+
+  const autoAdvancedRef = useRef(false);
+
+  useEffect(() => {
+    if (!variant.game.hasMoveLimit) return;
+    if (isComplete || isFailed) {
+      if (autoAdvancedRef.current) return;
+      autoAdvancedRef.current = true;
+      const timeout = setTimeout(() => {
+        setShowCorrectFlash(false);
+        if (isLastTrial) {
+          setShowResultModal(true);
+        } else {
+          handleNextTrial();
+        }
+      }, 1000);
+      if (!isFailed) setShowCorrectFlash(true);
+      return () => clearTimeout(timeout);
+    } else {
+      autoAdvancedRef.current = false;
+      setShowCorrectFlash(false);
+    }
+  }, [isComplete, isFailed, isLastTrial, variant.game.hasMoveLimit]);
 
   const handleNextTrial = () => {
     const nextIndex = trialIndex + 1;
@@ -88,7 +118,6 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
     }
   };
 
-  const isLastTrial = trialIndex === variant.trials.length - 1;
   const buttonText = isLastTrial ? "مشاهده نتایج" : "ثبت پاسخ";
 
   const userNameValid = /^[A-Za-z]+$/.test(userName);
@@ -162,22 +191,22 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
   };
 
   return (
-    <div dir="ltr" className="min-h-screen bg-[#020b18] text-white overflow-hidden font-sans">
+    <div dir="ltr" className="min-h-screen bg-page-bg text-text-primary overflow-hidden font-sans" style={{ zoom: 1.0 }}>
+      <ThemeToggle />
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-5">
 
         <div className="grid grid-cols-1 items-start">
 
       <header className="text-center mb-12 flex flex-col items-center">
         <div className="relative mb-6">
-          <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full"></div>
-          <img
-            src="/logo.png"
-            alt="University Logo"
-            className="relative w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+          <div className="absolute inset-0 bg-blue-soft-bg blur-3xl rounded-full"></div>
+          <ThemeLogo
+            className="relative w-32 h-32 md:w-40 md:h-40 object-contain"
+            style={{ filter: "drop-shadow(0 0 15px var(--color-logo-shadow))" }}
           />
         </div>
 
-        <h1 className="text-5xl font-black mb-0.5 py-1 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent" dir="rtl">
+        <h1 className="text-5xl font-black mb-0.5 py-1 bg-gradient-to-b from-title-from to-title-to bg-clip-text text-transparent" dir="rtl">
             {currentVariant.title}
         </h1>
 
@@ -189,47 +218,28 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
             <span className="h-px w-8 bg-blue-500"></span>
           </div>
 
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-5 py-1 text-[12px] text-white/70">
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-surface-card border border-border-default px-5 py-1 text-[12px] text-text-body">
               <span>{currentVariant.sub}</span>
             </div>
       </header>
         </div>
 
-        <div className="mt-8 grid grid-cols-[1fr_1fr] gap-6">
+      {/* Combined Game Container */}
+      <Panel className="mt-8 overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2">
 
-          <div className="flex flex-col gap-4" dir="rtl">
-            <Panel className="p-4">
-              <div className="flex items-center justify-between text-sm text-white/70">
-                <span>مرحله</span>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">◔</div>
-              </div>
-              <div className="mt-2 text-3xl font-bold tracking-wider">
-                {String(trialIndex + 1)} از {String(variant.trials.length)}
-              </div>
-            </Panel>
+          {/* Left Side: Goal Pattern */}
+          <div className="p-6 border-b md:border-b-0 md:border-l border-border-default/50 flex flex-col items-center">
+            <div className="mb-6 text-center">
+              <div className="text-sm font-bold uppercase tracking-widest text-blue-400 mb-1">Target Pattern</div>
+              <div className="text-xl font-black text-text-heading">الگوی هدف</div>
             </div>
-            <div>
-            <Panel className="p-4">
-              <div className="flex items-center justify-between text-sm text-white/70">
-                <span>حرکات انجام شده</span>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">↻</div>
-              </div>
-              <div className="mt-2 text-3xl font-bold tracking-wider">
-                {String(moveCount).padStart(2, "0")}
-              </div>
-            </Panel>
-          </div>
-        </div>
-        <div className="mt-8 grid grid-cols-[1fr_1fr] gap-6">
-          <Panel className="p-4">
-            <div className="mb-2 text-center">
-              <div className="text-l font-semibold text-white/90">الگوی هدف</div>
-            </div>
-            <div className="relative aspect-square w-full max-w-[400px] mx-auto">
-              <img src={BASE_ASSET} alt="" className="absolute top-0 left-0 w-full h-full" style={{ zIndex: 1 }} />
+
+            <div className="relative aspect-square w-full max-w-[340px] mb-8">
+              <img src={baseAsset} alt="" className="absolute top-0 left-0 w-full h-full" style={{ zIndex: 1 }} />
               {goalBoard?.map((disks, i) => (
                 <React.Fragment key={`goal-peg-${i}`}>
-                  <img src={POLE_ASSETS[i]} alt="" className="absolute top-0 left-0 w-full h-full" style={{ zIndex: i + 2 }} />
+                  <img src={poleAssets[i]} alt="" className="absolute top-0 left-0 w-full h-full" style={{ zIndex: i + 2 }} />
                   {disks.map((diskColor, slotIdx) => (
                     <img
                       key={`goal-disk-${i}-${slotIdx}`}
@@ -243,48 +253,53 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
               ))}
             </div>
 
-                      <div className="flex flex-col gap-4" dir="rtl">
-            <Panel className="p-4">
-              <div className="flex items-center justify-between text-sm text-white/70">
-                <span>زمان باقی‌مانده</span>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">◔</div>
-              </div>
-              <div className="mt-2 text-3xl font-bold tracking-wider">
-                {variant.game.hasTrialTimeLimit ? formatTime(variant.game.trialTimeLimit ?? null) : "--:--"}
-              </div>
-            </Panel>
-
-            <Panel className="p-4">
-              <div className="flex items-center justify-between text-sm text-white/70">
-                <span>محدودیت حرکات</span>
-                <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs">↻</div>
-              </div>
-              <div className="mt-2 text-3xl font-bold tracking-wider">
-                {variant.game.hasMoveLimit ? variant.game.moveLimit ?? "--" : "--"}
-              </div>
-            </Panel>
-          </div>
-          
-          </Panel>
-
-          <Panel className="mt-6 p-4 relative">
-            <div className="mb-2 text-center">
-              <div className="text-xl font-semibold text-white/90">فضای تعاملی</div>
+            <div className="grid grid-cols-2 gap-3 w-full" dir="rtl">
+              <StatItem
+                label="زمان باقی‌مانده"
+                value={variant.game.hasTrialTimeLimit ? formatTime(timeLeft) : "--:--"}
+                icon="◔"
+                isError={variant.game.hasTrialTimeLimit}
+              />
+              <StatItem
+                label="مرحله"
+                value={`${trialIndex + 1} از ${variant.trials.length}`}
+                icon="◔"
+              />
+              <StatItem
+                label="محدودیت حرکات"
+                value={variant.game.hasMoveLimit ? String(variant.trials[trialIndex]?.optimalMoves ?? "--") : "--"}
+                icon="↻"
+                isError={variant.game.hasMoveLimit}
+              />
+              <StatItem
+                label="حرکات انجام شده"
+                value={String(moveCount).padStart(2, "0")}
+                icon="↻"
+              />
             </div>
-            <div className="mb-2 text-center text-xs text-white/60">.روی میله مبدا و سپس مقصد کلیک کنید</div>
+          </div>
 
-            <div className={`relative aspect-square w-full max-w-[500px] mx-auto rounded-[28px] border bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] shadow-[inset_0_0_0_1px_rgba(59,130,246,0.08)] transition-all ${shaking ? 'animate-shake border-red-500/40' : ''} ${showCorrectFlash ? 'animate-flash-green border-green-400/40' : ''} ${isFailed ? 'border-red-500/40' : ''} ${!shaking && !showCorrectFlash && !isFailed ? 'border-white/10' : ''}`}>
-              <div className="absolute pointer-events-none h-1/2 w-full max-w-[1200px] rounded-[28px] blur-3xl bg-blue-500/5" style={{ zIndex: 0 }} />
-              <img src={BASE_ASSET} alt="" className="absolute top-0 left-0 w-full h-full" style={{ zIndex: 1 }} />
+          {/* Right Side: Interactive Space */}
+          <div className="p-6 flex flex-col items-center bg-surface-interactive-bg/30">
+            <div className="mb-6 text-center">
+              <div className="text-sm font-bold uppercase tracking-widest text-emerald-400 mb-1">Interactive Area</div>
+              <div className="text-xl font-black text-text-heading">فضای تعاملی</div>
+              <div className="mt-1 text-xs text-text-muted">روی میله مبدا و سپس مقصد کلیک کنید</div>
+            </div>
+
+            <div className={`relative aspect-square w-full max-w-[420px] rounded-[32px] border transition-all duration-300 ${shaking ? 'animate-shake border-error-border' : ''} ${showCorrectFlash ? 'animate-flash-green border-success-border' : ''} ${isFailed ? 'border-error-border' : ''} ${!shaking && !showCorrectFlash && !isFailed ? 'border-border-default/50 bg-surface-card/50' : ''}`}
+              style={{ boxShadow: "inset 0 0 40px rgba(0,0,0,0.1)" }}>
+
+              <img src={baseAsset} alt="" className="absolute top-0 left-0 w-full h-full" style={{ zIndex: 1 }} />
               {board?.map((disks, i) => (
                 <React.Fragment key={`play-peg-${i}`}>
                   <img
-                    src={POLE_ASSETS[i]}
+                    src={poleAssets[i]}
                     alt=""
                     className="absolute top-0 left-0 w-full h-full"
                     style={{
                       zIndex: i + 2,
-                      filter: selectedPeg === i ? "drop-shadow(0 0 10px #3b82f6) brightness(1.15)" : undefined,
+                      filter: selectedPeg === i ? "drop-shadow(0 0 15px var(--color-selected-peg)) brightness(1.2)" : undefined,
                       transition: "filter 0.2s",
                     }}
                   />
@@ -299,58 +314,58 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
                   ))}
                 </React.Fragment>
               ))}
+
               {!isComplete && [0, 1, 2].map(i => (
                 <div
                   key={`click-${i}`}
-                  className="absolute top-0 h-full cursor-pointer"
+                  className="absolute top-0 h-full cursor-pointer hover:bg-white/5 transition-colors"
                   style={{ left: `${(i / 3) * 100}%`, width: `${100 / 3}%`, zIndex: 30 }}
                   onClick={() => handlePegClick(i)}
                 />
               ))}
+
               {showCorrectFlash && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[28px] bg-green-500/10 backdrop-blur-sm">
-                  <span className="text-2xl font-bold text-green-400 drop-shadow-lg"></span>
-                </div>
-              )}
-              {isFailed && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[28px] bg-red-500/10 backdrop-blur-sm">
-                  <span className="text-2xl font-bold text-red-400 drop-shadow-lg">✗ زمان یا تعداد حرکات به پایان رسید</span>
+                <div className="absolute inset-0 z-40 flex items-center justify-center rounded-[32px] bg-success-soft/40 backdrop-blur-sm animate-in fade-in">
+                  <div className="bg-success text-white p-4 rounded-full shadow-2xl scale-125">✓</div>
                 </div>
               )}
             </div>
 
-            <div className="mt-6 flex items-center justify-center gap-4">
-              <button
-                onClick={handleSubmitAnswer}
-                className={`rounded-xl px-12 py-3 text-sm font-semibold text-white transition ${
-                  isLastTrial
-                    ? "bg-gradient-to-b from-blue-500 to-blue-700 shadow-[0_10px_28px_rgba(34,197,94,0.35)] animate-pulse"
-                    : "bg-gradient-to-b from-green-500 to-green-700 shadow-[0_10px_28px_rgba(34,197,94,0.35)]"
-                }`}
-              >
-                {buttonText}
-              </button>
-            </div>
-          </Panel>
+            {!variant.game.hasMoveLimit && (
+              <div className="mt-8 w-full flex justify-center">
+                <button
+                  onClick={handleSubmitAnswer}
+                  className={`group relative overflow-hidden rounded-2xl px-16 py-4 text-m font-bold text-white transition-all hover:scale-105 active:scale-95 ${
+                    isLastTrial ? "bg-blue-600" : "bg-emerald-600"
+                  }`}
+                  style={{ boxShadow: "0 10px 30px -5px rgba(0,0,0,0.3)" }}
+                >
+                  <span className="relative z-10">{buttonText}</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+      </Panel>
 
         <div className="mt-7 grid grid-cols-[1fr_1fr] gap-4" dir = "rtl">
 
           <Panel className="p-4">
-            <div className="mb-2 text-xl font-semibold text-white/80">اطلاعات آزمون</div>
-            <div className="grid grid-cols-2 gap-y-1 text-m text-white/55">
+            <div className="mb-2 text-xl font-semibold text-text-secondary">اطلاعات آزمون</div>
+            <div className="grid grid-cols-2 gap-y-1 text-m text-text-muted">
               <div>نام آزمون</div>
-              <div className="text-left text-white/80">{variant.title}</div>
+              <div className="text-left text-text-secondary">{variant.title}</div>
               <div>زمان کل سپری شده</div>
-              <div className="text-left text-white/80 font-mono">{formatTime(totalTime)}</div>
+              <div className="text-left text-text-secondary font-mono">{formatTime(totalTime)}</div>
               <div>تعداد مراحل</div>
-              <div className="text-left text-white/80">{variant.trials.length}</div>
+              <div className="text-left text-text-secondary">{variant.trials.length}</div>
             </div>
           </Panel>
 
           <Panel className="p-4 text-right">
-            <div className="mb-2 text-xl font-semibold text-white/80">راهنما</div>
-            <ul className="space-y-1 text-m leading-6 text-white/60">
+            <div className="mb-2 text-xl font-semibold text-text-secondary">راهنما</div>
+            <ul className="space-y-1 text-m leading-6 text-text-body">
               <li>در هر حرکت تنها می‌توانید یک مهره را جابجا کنید.</li>
               <li>برای انتخاب مهره یا میله، بر روی آن کلیک چپ کنید.</li>
               <li>برای جابه‌جایی یک مهره بین میله‌ها، ابتدا مهره مورد نظر را انتخاب کرده، سپس میله هدف را انتخاب کنید.</li>
@@ -361,46 +376,47 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
       </div>
 
       {showResultModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0a1628] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
-            <h2 className="mb-6 text-center text-2xl font-bold text-white/90">ثبت نتایج آزمون</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-overlay backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-border-default bg-surface-modal p-8" style={{ boxShadow: "0 20px 60px var(--color-modal-shadow)" }}>
+            <h2 className="mb-6 text-center text-2xl font-bold text-text-heading">ثبت نتایج آزمون</h2>
 
             <div className="mb-5" dir="rtl">
-              <label className="mb-2 block text-sm text-white/70">نام شرکت‌کننده</label>
+              <label className="mb-2 block text-sm text-text-body">نام شرکت‌کننده</label>
               <input
                 type="text"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 placeholder="Akbarpour"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-right text-white placeholder-white/30 outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border-default bg-surface-card px-4 py-3 text-right text-text-primary placeholder-text-placeholder outline-none transition focus:border-border-focus"
               />
               {userName && !userNameValid && (
-                <p className="mt-1 text-xs text-red-400">فقط حروف لاتین، بدون فاصله و علامت</p>
+                <p className="mt-1 text-xs text-error">فقط حروف لاتین، بدون فاصله و علامت</p>
               )}
             </div>
 
             <div className="mb-6" dir="rtl">
-              <label className="mb-2 block text-sm text-white/70">شناسه شرکت کننده</label>
+              <label className="mb-2 block text-sm text-text-body">شناسه شرکت کننده</label>
               <input
                 type="text"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 placeholder="TOL_1001"
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-right text-white placeholder-white/30 outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border-default bg-surface-card px-4 py-3 text-right text-text-primary placeholder-text-placeholder outline-none transition focus:border-border-focus"
               />
               {userId && !userIdValid && (
-                <p className="mt-1 text-xs text-red-400">فقط حروف و اعداد لاتین، خط تیره و زیرخط، بدون فاصله</p>
+                <p className="mt-1 text-xs text-error">فقط حروف و اعداد لاتین، خط تیره و زیرخط، بدون فاصله</p>
               )}
             </div>
 
             <button
               onClick={handleSaveAndExport}
               disabled={!formValid}
-              className={`w-full rounded-xl px-12 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(34,197,94,0.35)] ${
+              className={`w-full rounded-xl px-12 py-3 text-sm font-semibold text-text-primary transition ${
                 formValid
-                  ? "bg-gradient-to-b from-blue-500 to-blue-700"
-                  : "cursor-not-allowed bg-white/10 text-white/40"
+                  ? "bg-gradient-to-b from-btn-primary-from to-btn-primary-to"
+                  : "cursor-not-allowed bg-btn-disabled-bg text-text-disabled"
               }`}
+              style={formValid ? { boxShadow: "0 10px 28px var(--color-success-glow)" } : undefined}
             >
               ثبت
             </button>
@@ -439,10 +455,23 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
 
 function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl border border-white/10 bg-white/[0.035] backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.35)] ${className}`}>
+    <div className={`rounded-2xl border border-border-default bg-surface-panel backdrop-blur-md ${className}`}
+      style={{ boxShadow: "0 10px 30px var(--color-panel-shadow)" }}>
       {children}
     </div>
   );
 }
 
-
+function StatItem({ label, value, icon, isError }: { label: string; value: string; icon: string; isError?: boolean }) {
+  return (
+    <div className={`rounded-xl border p-3 ${isError ? 'border-error-border bg-error-surface' : 'border-border-default bg-surface-card'}`}>
+      <div className="flex items-center justify-between text-xs text-text-body">
+        <span>{label}</span>
+        <div className={`flex h-6 w-6 items-center justify-center rounded-full border text-[10px] ${isError ? 'border-error-border bg-error-soft' : 'border-border-default bg-surface-card'}`}>{icon}</div>
+      </div>
+      <div className={`mt-1 text-lg font-bold tracking-wider ${isError ? 'text-error' : 'text-text-primary'}`}>
+        {value}
+      </div>
+    </div>
+  );
+}

@@ -112,14 +112,20 @@ export const useGameStore = create<MetricsState>((set, get) => ({
 
     if (config?.game?.trialTimeLimit) {
       const timer = setInterval(() => {
-        const { timeLeft, isComplete } = get();
-        if (isComplete) { clearInterval(timer); return; }
-        if (timeLeft === null) return;
-        if (timeLeft <= 1) {
+        const st = get();
+        if (st.isComplete) { clearInterval(timer); return; }
+        if (st.timeLeft === null) return;
+        if (st.timeLeft <= 1) {
           clearInterval(timer);
           set({ isFailed: true, timeLeft: 0 });
+          const st2 = get();
+          if (st2.config?.game?.hasMoveLimit) {
+            const tIdx = st2._currentTrialIndex;
+            const trial = st2.config.trials[tIdx - 1];
+            st2.handleSubmit(tIdx, trial?.optimalMoves);
+          }
         } else {
-          set({ timeLeft: timeLeft - 1 });
+          set({ timeLeft: st.timeLeft - 1 });
         }
       }, 1000);
       set({ timer });
@@ -141,7 +147,7 @@ export const useGameStore = create<MetricsState>((set, get) => ({
 
   handlePegClick: (pegIndex) => {
     const state = get();
-    if (!state.config || state.isFailed) return;
+    if (!state.config || state.isComplete || state.isFailed) return;
 
     if (state.selectedPeg === null) {
       if (state.board[pegIndex].length > 0) set({ selectedPeg: pegIndex });
@@ -165,7 +171,12 @@ export const useGameStore = create<MetricsState>((set, get) => ({
     if (disk !== undefined) newBoard[pegIndex].push(disk);
 
     const newMoveCount = state.moveCount + 1;
-    const failed = state.config.game.hasMoveLimit && state.config.game.moveLimit && newMoveCount > state.config.game.moveLimit;
+    const reached = isGoalReached(newBoard, state.goalBoard);
+    const currentTrial = state.config.trials[state._currentTrialIndex - 1];
+    const effectiveMoveLimit = state.config.game.hasMoveLimit ? currentTrial?.optimalMoves : undefined;
+    const atLimit = effectiveMoveLimit !== undefined && newMoveCount >= effectiveMoveLimit;
+    const failed = atLimit && !reached;
+    const autoComplete = atLimit && reached;
 
     const firstMove = state._firstMoveTime ?? Date.now();
     const now = Date.now();
@@ -185,11 +196,16 @@ export const useGameStore = create<MetricsState>((set, get) => ({
     };
 
     set({
-      board: newBoard, moveCount: newMoveCount, isFailed: failed,
+      board: newBoard, moveCount: newMoveCount, isComplete: autoComplete || state.isComplete, isFailed: failed,
       selectedPeg: null, _firstMoveTime: firstMove,
       eventLog: [...state.eventLog, event],
       _lastEventTotalTime: totalTimeMs,
     });
+
+    const afterState = get();
+    if (afterState.config?.game?.hasMoveLimit && (afterState.isComplete || afterState.isFailed)) {
+      afterState.handleSubmit(afterState._currentTrialIndex, currentTrial?.optimalMoves);
+    }
   },
 
   handleSubmit: (trialIndex, optimalMoves) => {

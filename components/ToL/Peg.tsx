@@ -1,5 +1,5 @@
 import { Disk } from "./Disk";
-import { getDiskAssetPath, getDiskZIndex, POLE_ASSETS } from "@/utils/assetHelpers";
+import { getDiskAssetPath, getDiskZIndex, getPoleAssets } from "@/utils/assetHelpers";
 
 interface PegProps {
   pegIndex: number;
@@ -22,7 +22,7 @@ export function Peg({
   return (
     <>
       <img
-        src={POLE_ASSETS[pegIndex]}
+        src={getPoleAssets(capacities)[pegIndex]}
         alt=""
         className="absolute top-0 left-0 w-full h-full pointer-events-none"
         style={{
