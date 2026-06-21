@@ -8,6 +8,10 @@ import { VariantConfig } from "../types";
 import { SHALLICE_CLASSIC_TRIALS } from "./variants/shalliceClassic";
 import { SHALLICE_RANDOM_TRIALS } from "./variants/shalliceRandom";
 import { UNCON_PRO_TRIALS } from "./variants/unconstrainedPro";
+import { UNCON_RAN_TRIALS } from "./variants/unconstrainedRan";
+import { PHILLIPS_A_TRIALS } from "./variants/phillips-a";
+import { PHILLIPS_B_TRIALS } from "./variants/phillips-b";
+import { PHILLIPS_C_TRIALS } from "./variants/phillips-c";
 
 export const VARIANT_DATA_TEST: Record<string, VariantConfig> = {
 
@@ -31,6 +35,28 @@ export const VARIANT_DATA_TEST: Record<string, VariantConfig> = {
 
     trials: UNCON_PRO_TRIALS,
   },
+
+  "unconstrained-rand": {
+    id: "unconstrained-rand",
+    title: "تست صعودی بدون محدودیت",
+    sub: "۳ تا ۵ دیسک، ۲۴ مرحله نامنظم",
+    hasTimeLimit: false,
+    rules: [
+      { title: "حرکت تک مهره‌ای", description: "در هر مرحله فقط یک مهره می‌تواند حرکت کند.", icon: RefreshCcw },
+      { title: "مهره‌های قابل حرکت", description: "تنها مهره‌هایی که در بالای میله قرار دارند قابل جابه‌جایی هستند.", icon: Scale },
+      { title: "محدودیت ظرفیت میله‌ها", description: "هر میله ظرفیت مشخصی دارد.", icon: TimerReset },
+      { title: "محدودیت زمان و حرکت", description: "هر مرحله دارای محدودیت زمانی و تعداد حرکات است.", icon: Target },
+    ],
+    game: {
+      disks: 5,
+      pegCapacities: [5, 5, 5],
+      hasMoveLimit: false,
+      hasTrialTimeLimit: false,
+    },
+
+    trials: UNCON_RAN_TRIALS,
+  },
+
 
   "shallice-classic": {
     id: "shallice-classic",
@@ -72,6 +98,69 @@ export const VARIANT_DATA_TEST: Record<string, VariantConfig> = {
     },
 
     trials: SHALLICE_RANDOM_TRIALS,
+  },
+
+"phillips-a": {
+    id: "phillips-a",
+    title: "آزمون فیلیپس - سری A",
+    sub: "۵ دیسک، ۸ مرحله با دشواری فزاینده",
+    hasTimeLimit: false,
+    rules: [
+      { title: "حرکت تک مهره‌ای", description: "در هر مرحله فقط یک مهره می‌تواند حرکت کند.", icon: RefreshCcw },
+      { title: "مهره‌های قابل حرکت", description: "تنها مهره‌هایی که در بالای میله قرار دارند قابل جابه‌جایی هستند.", icon: Scale },
+      { title: "محدودیت ظرفیت میله‌ها", description: "هر میله ظرفیت مشخصی دارد.", icon: TimerReset },
+      { title: "محدودیت زمان و حرکت", description: "هر مرحله دارای محدودیت زمانی و تعداد حرکات است.", icon: Target },
+    ],
+    game: {
+      disks: 5,
+      pegCapacities: [5, 5, 5],
+      hasMoveLimit: false,
+      hasTrialTimeLimit: false,
+    },
+
+    trials: PHILLIPS_A_TRIALS,
+  },
+
+  "phillips-b": {
+    id: "phillips-b",
+    title: "آزمون فیلیپس - سری B",
+    sub: "۵ دیسک، ۸ مرحله با دشواری فزاینده",
+    hasTimeLimit: false,
+    rules: [
+      { title: "حرکت تک مهره‌ای", description: "در هر مرحله فقط یک مهره می‌تواند حرکت کند.", icon: RefreshCcw },
+      { title: "مهره‌های قابل حرکت", description: "تنها مهره‌هایی که در بالای میله قرار دارند قابل جابه‌جایی هستند.", icon: Scale },
+      { title: "محدودیت ظرفیت میله‌ها", description: "هر میله ظرفیت مشخصی دارد.", icon: TimerReset },
+      { title: "محدودیت زمان و حرکت", description: "هر مرحله دارای محدودیت زمانی و تعداد حرکات است.", icon: Target },
+    ],
+    game: {
+      disks: 5,
+      pegCapacities: [5, 5, 5],
+      hasMoveLimit: false,
+      hasTrialTimeLimit: false,
+    },
+
+    trials: PHILLIPS_B_TRIALS,
+  },
+
+  "phillips-c": {
+    id: "phillips-c",
+    title: "آزمون فیلیپس - سری C",
+    sub: "۵ دیسک، ۸ مرحله با دشواری فزاینده",
+    hasTimeLimit: false,
+    rules: [
+      { title: "حرکت تک مهره‌ای", description: "در هر مرحله فقط یک مهره می‌تواند حرکت کند.", icon: RefreshCcw },
+      { title: "مهره‌های قابل حرکت", description: "تنها مهره‌هایی که در بالای میله قرار دارند قابل جابه‌جایی هستند.", icon: Scale },
+      { title: "محدودیت ظرفیت میله‌ها", description: "هر میله ظرفیت مشخصی دارد.", icon: TimerReset },
+      { title: "محدودیت زمان و حرکت", description: "هر مرحله دارای محدودیت زمانی و تعداد حرکات است.", icon: Target },
+    ],
+    game: {
+      disks: 5,
+      pegCapacities: [5, 5, 5],
+      hasMoveLimit: false,
+      hasTrialTimeLimit: false,
+    },
+
+    trials: PHILLIPS_C_TRIALS,
   },
 
   "fimbel-old": {

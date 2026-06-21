@@ -1,0 +1,28 @@
+import { Trial } from "../../types";
+
+export const PHILLIPS_C_TRIALS: Trial[] = [
+{ id: 1, optimalMoves: 7, start: [[5, 4], [2], [3, 1]], goal: [[4, 3, 1], [2], [5]] },
+{ id: 2, optimalMoves: 5, start: [[], [2], [1, 3]], goal: [[2], [], [3, 1]] },
+{ id: 3, optimalMoves: 7, start: [[2, 4, 1], [3], []], goal: [[3, 1, 2], [4], []] },
+{ id: 4, optimalMoves: 1, start: [[], [], [3, 1, 2]], goal: [[2], [], [3, 1]] },
+{ id: 5, optimalMoves: 6, start: [[4, 3], [5, 1, 2], []], goal: [[1, 5, 4], [], [2, 3]] },
+{ id: 6, optimalMoves: 8, start: [[3, 4], [1, 2], []], goal: [[1, 4, 2], [], [3]] },
+{ id: 7, optimalMoves: 8, start: [[5], [3, 1], [4, 2]], goal: [[3], [5, 2], [4, 1]] },
+{ id: 8, optimalMoves: 4, start: [[], [1, 2, 3], []], goal: [[1], [2], [3]] },
+{ id: 9, optimalMoves: 7, start: [[2], [1, 3], [4]], goal: [[1, 2], [4], [3]] },
+{ id: 10, optimalMoves: 2, start: [[2, 4], [1, 3], []], goal: [[], [1, 3], [4, 2]] },
+{ id: 11, optimalMoves: 9, start: [[], [], [2, 4, 5, 1, 3]], goal: [[], [4, 2], [3, 5, 1]] },
+{ id: 12, optimalMoves: 6, start: [[4], [3], [2, 1]], goal: [[1, 3], [], [4, 2]] },
+{ id: 13, optimalMoves: 3, start: [[], [2], [1, 3]], goal: [[3, 2], [1], []] },
+{ id: 14, optimalMoves: 3, start: [[1], [3, 4], [2]], goal: [[3], [], [2, 1, 4]] },
+{ id: 15, optimalMoves: 7, start: [[1, 2, 4], [5, 3], []], goal: [[1, 4, 5, 3], [2], []] },
+{ id: 16, optimalMoves: 5, start: [[], [], [2, 3, 1]], goal: [[1], [], [3, 2]] },
+{ id: 17, optimalMoves: 9, start: [[1, 2, 3], [5], [4]], goal: [[5, 4, 3], [2], [1]] },
+{ id: 18, optimalMoves: 4, start: [[], [1, 3, 2], []], goal: [[2], [3], [1]] },
+{ id: 19, optimalMoves: 9, start: [[1], [4, 3], [2, 5]], goal: [[5, 4], [3, 2], [1]] },
+{ id: 20, optimalMoves: 4, start: [[1, 3, 2], [], []], goal: [[2], [], [3, 1]] },
+{ id: 21, optimalMoves: 4, start: [[5, 1], [4, 3], [2]], goal: [[5], [3, 1], [2, 4]] },
+{ id: 22, optimalMoves: 5, start: [[2], [1], [4, 3]], goal: [[3], [1], [2, 4]] },
+{ id: 23, optimalMoves: 4, start: [[2], [3, 1], []], goal: [[1, 2], [], [3]] },
+{ id: 24, optimalMoves: 5, start: [[], [3, 2], [4, 1]], goal: [[2, 4], [1, 3], []] },
+];

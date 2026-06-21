@@ -3,6 +3,7 @@ import ThemeToggle from "./ThemeToggle";
 import ThemeLogo from "./ThemeLogo";
 import { ArrowLeft, CircleAlert, Play, RefreshCcw, Scale, Target, TimerReset } from "lucide-react";
 import { VARIANT_DATA_INFO } from "../data/variants";
+import { VARIANT_DATA_TEST } from "@/lib/variants";
 
 const DEFAULT_RULES = [
   { title: "در هر حرکت، فقط یک مهره را جابه‌جا کنید.", description: "هر حرکت باید از روی یک مهره انجام شود.", icon: RefreshCcw },
@@ -21,6 +22,13 @@ const InfoPage: React.FC = () => {
   const currentVariant =
     VARIANT_DATA_INFO[variantId as keyof typeof VARIANT_DATA_INFO] ??
     VARIANT_DATA_INFO["shallice-random"];
+
+  const testConfig = VARIANT_DATA_TEST[variantId as keyof typeof VARIANT_DATA_TEST];
+  const capacities = testConfig?.game.pegCapacities ?? [1, 2, 3];
+  const is555 = capacities.length === 3 && capacities.every(c => c === 5);
+
+  const exampleStart = is555 ? [[1,2,3],[4],[5]] : [[1],[2,3],[]];
+  const exampleGoal = is555 ? [[5,4],[3],[1,2]] : [[],[3,2],[1]];
 
   // Load rules dynamically
   const rules = currentVariant.rules ?? DEFAULT_RULES;
@@ -116,13 +124,13 @@ const InfoPage: React.FC = () => {
 
           <div className="grid grid-cols-[1fr_auto_1fr] gap-6 items-center">
             <div className="rounded-2xl border border-border-default bg-surface-card p-6">
-              <TowerStack colors={["#8b5cf6", "#3b82f6"]} label="آرایش اولیه" />
+              <TowerStack config={exampleStart} label="آرایش اولیه" />
             </div>
 
             <ArrowLeft className="text-text-disabled" size={32} />
 
             <div className="rounded-2xl border border-border-default bg-surface-card p-6">
-              <TowerStack colors={["#22c55e", "#f59e0b", "#ef4444"]} label="آرایش هدف" />
+              <TowerStack config={exampleGoal} label="آرایش هدف" />
             </div>
           </div>
         </section>
@@ -157,16 +165,44 @@ const InfoPage: React.FC = () => {
     </div>
   );
 };
+function TowerStack({
+  config,
+  label
+}: {
+  config: number[][];
+  label: string;
+}) {
 
-function TowerStack({ colors, label }: { colors: string[], label: string }) {
+  const colors: Record<number, string> = {
+    1: "#8b5cf6",
+    2: "#3b82f6",
+    3: "#22c55e",
+    4: "#f59e0b",
+    5: "#ef4444"
+  };
+
   return (
-    <div className="flex flex-col items-center h-full">
-      <p className="text-[11px] text-text-faint mb-4 uppercase tracking-tighter">{label}</p>
+    <div className="flex flex-col items-center h-32">
+      <p className="text-[11px] text-text-faint mb-4 uppercase tracking-tighter">
+        {label}
+      </p>
 
-      <div className="flex flex-col-reverse items-center gap-1 mb-1 h-20 justify-start">
-        {colors.map((c, i) => (
-          <div key={i} className="rounded-full w-5 h-5 shadow-lg" style={{ background: c }} />
-        ))}
+      <div className="flex items-end justify-center gap-6 mb-2">
+
+        {config.map((peg, pegIndex) => (
+            <div key={pegIndex} className="flex flex-col-reverse items-center gap-1">
+
+              {peg.map((disk, i) => (
+                <div
+                  key={i}
+                  className="rounded-full w-5 h-5 shadow-lg"
+                  style={{ background: colors[disk] }}
+                />
+              ))}
+
+            </div>
+          ))}
+
       </div>
 
       <div className="w-full h-1 bg-border-strong rounded-full"></div>

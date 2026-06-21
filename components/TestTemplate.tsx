@@ -54,15 +54,18 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
   const [trialIndex, setTrialIndex] = useState(0);
   const [shaking, setShaking] = useState(false);
   const [showCorrectFlash, setShowCorrectFlash] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
   const [showResultModal, setShowResultModal] = useState(false);
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
     setConfig(variant);
-    const firstTrial = variant.trials[0];
-    startTrial(firstTrial.start, firstTrial.goal, 1);
-  }, [variantId, setConfig, startTrial, variant]);
+    if (!showInstructions) {
+      const firstTrial = variant.trials[0];
+      startTrial(firstTrial.start, firstTrial.goal, 1);
+    }
+  }, [variantId, setConfig, startTrial, variant, showInstructions]);
 
   const isLastTrial = trialIndex === variant.trials.length - 1;
 
@@ -88,6 +91,10 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
       setShowCorrectFlash(false);
     }
   }, [isComplete, isFailed, isLastTrial, variant.game.hasMoveLimit]);
+
+  const handleStartFromInstructions = () => {
+    setShowInstructions(false);
+  };
 
   const handleNextTrial = () => {
     const nextIndex = trialIndex + 1;
@@ -374,6 +381,37 @@ export default function TestTemplate({ variantId }: { variantId: string }) {
           </Panel>
         </div>
       </div>
+
+      {showInstructions && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-overlay backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-border-default bg-surface-modal p-8" style={{ boxShadow: "0 20px 60px var(--color-modal-shadow)" }}>
+            <h2 className="mb-6 text-center text-2xl font-bold text-text-heading">راهنما</h2>
+
+            <div className="mb-6 space-y-3" dir="rtl">
+              <p className="text-sm text-text-body leading-relaxed">
+                • در هر حرکت تنها می‌توانید یک مهره را جابجا کنید.
+              </p>
+              <p className="text-sm text-text-body leading-relaxed">
+                • برای انتخاب مهره یا میله، بر روی آن کلیک چپ کنید.
+              </p>
+              <p className="text-sm text-text-body leading-relaxed">
+                • برای جابه‌جایی یک مهره بین میله‌ها، ابتدا مهره مورد نظر را انتخاب کرده، سپس میله هدف را انتخاب کنید.
+              </p>
+              <p className="text-sm text-text-body leading-relaxed">
+                • محدودیت ظرفیت میله‌ها: {variant.game.pegCapacities.join("-").split("").reverse().join("")}
+              </p>
+            </div>
+
+            <button
+              onClick={handleStartFromInstructions}
+              className="w-full rounded-xl px-12 py-3 text-sm font-semibold text-text-primary bg-gradient-to-b from-btn-primary-from to-btn-primary-to transition"
+              style={{ boxShadow: "0 10px 28px var(--color-success-glow)" }}
+            >
+              متوجه شدم
+            </button>
+          </div>
+        </div>
+      )}
 
       {showResultModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-overlay backdrop-blur-sm">
